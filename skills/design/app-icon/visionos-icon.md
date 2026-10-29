@@ -15,7 +15,8 @@ clean, smaller ones fail.
 
 ## The catalog
 
-In the visionOS target's `Assets.xcassets/`:
+In `Icon/visionOS.xcassets/` (with its own `Contents.json` of
+`{ "info" : { "author" : "xcode", "version" : 1 } }`):
 
 ```text
 AppIcon.solidimagestack/
@@ -49,8 +50,20 @@ Each layer's `Content.imageset/Contents.json`:
 }
 ```
 
-Every layer is one PNG, 1024 x 1024 px at 2x (512 x 512 pt). The target
-keeps `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`.
+Every layer is one PNG, 1024 x 1024 px at 2x (512 x 512 pt). In the
+multi-platform template's `project.yml`, add the catalog and the setting
+to the visionOS target (`./build.sh --platform visionos` regenerates the
+Xcode project from `project.yml` on every build):
+
+```yaml
+  <App>-visionOS:
+    sources:
+      - path: Shared
+      - path: Icon/visionOS.xcassets
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+```
 
 Rules for the layers: [HIG App icons, visionOS]
 
@@ -69,7 +82,7 @@ The same SVG shapes as `Icon/AppIcon.icon`, on the same square canvas.
 
 ```bash
 r="${CLAUDE_SKILL_DIR}/scripts/render_layer.swift"
-stack="<visionOS target>/Assets.xcassets/AppIcon.solidimagestack"
+stack="Icon/visionOS.xcassets/AppIcon.solidimagestack"
 swift "$r" layer Icon/AppIcon.icon/Assets/front.svg "$stack/Front.solidimagestacklayer/Content.imageset/front.png" 1024 1024
 swift "$r" layer Icon/AppIcon.icon/Assets/back.svg  "$stack/Middle.solidimagestacklayer/Content.imageset/middle.png" 1024 1024
 swift "$r" fill "$stack/Back.solidimagestacklayer/Content.imageset/back.png" 1024 1024 336BF5
@@ -84,7 +97,7 @@ Check: the three PNGs exist and are 1024 x 1024 px
 
 ```bash
 mkdir -p .work/icon/visionos
-xcrun actool "<visionOS target>/Assets.xcassets" --compile .work/icon/visionos \
+xcrun actool "Icon/visionOS.xcassets" --compile .work/icon/visionos \
   --platform xros --target-device vision --minimum-deployment-target 26.0 \
   --app-icon AppIcon --output-partial-info-plist .work/icon/visionos/partial.plist \
   --output-format human-readable-text --warnings --notices 2>&1 | grep -E 'error:|warning:'

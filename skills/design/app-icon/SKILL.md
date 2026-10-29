@@ -31,7 +31,14 @@ tinted, and clear looks. Claude never draws those.
   and `Resources/AppIcon.icns` (Mac template). In the multi-platform
   template Xcode compiles it for each target.
 - `tools/icon_review.sh` renders it with `ictool` (Icon Composer's command
-  line tool, inside Xcode) into one contact sheet in `.work/icon/`.
+  line tool, inside Xcode) into one contact sheet: `.work/icon/review.png`
+  in the Mac template, `.work/icon/review-<platform>.png` in the
+  multi-platform template, which takes `--platform macos|ios|ipados|watchos`.
+- In the multi-platform template, `project.yml` lists `Icon/AppIcon.icon`
+  as a source of the macOS, iOS, iPadOS, and watchOS targets, with
+  `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon`. The tvOS and visionOS
+  targets ship with no icon: this skill adds `Icon/tvOS.xcassets` and
+  `Icon/visionOS.xcassets` (step 6).
 
 Older Mac app without these files: copy `Icon/`, `tools/make_icon.sh`,
 `tools/icon_review.sh`, and `tools/icon_sheet.swift` from the `bama:new-app`
@@ -142,24 +149,16 @@ Icon/AppIcon.icon/
 4. Review every look:
 
    ```bash
-   tools/icon_review.sh
-   # wrote .work/icon/<file>.png (the script prints the path)
+   tools/icon_review.sh                    # Mac template: wrote .work/icon/review.png
+   tools/icon_review.sh --platform <id>    # multi-platform: once per macos, ios, ipados, watchos target
    ```
 
-   Read the PNG. It shows Default, Dark, Tinted, and Clear at 256 pt, then
+   Read each PNG the script names on its `wrote` line. Each shows Default, Dark, Tinted, and Clear at 256 pt, then
    Default at 32 and 16 pt. The glyph reads in every look and is still
    recognizable at 16 pt. If not, make it bigger, bolder, or simpler.
 
-   For iPhone, iPad, and watch targets, render those platforms too (the
-   watch shows the circle):
-
-   ```bash
-   ictool="$(xcode-select -p)/../Applications/Icon Composer.app/Contents/Executables/ictool"
-   "$ictool" Icon/AppIcon.icon --export-image --output-file .work/icon/ios.png \
-     --platform iOS --rendition Default --width 256 --height 256 --scale 2
-   "$ictool" Icon/AppIcon.icon --export-image --output-file .work/icon/watchos.png \
-     --platform watchOS --rendition Default --width 256 --height 256 --scale 2
-   ```
+   The watch sheet shows the circle. For tvOS and visionOS the script
+   stops with a pointer back to this skill: use step 6.
 
    Check: Claude has read every review PNG, and the glyph reads in each
    look, at 16 pt, and inside the watch circle.
@@ -169,10 +168,14 @@ Icon/AppIcon.icon/
 
    Check: the last round's review PNGs pass step 4's check.
 
-6. tvOS or visionOS target: build its stack from the same SVG art with
-   [tvos-icon.md](tvos-icon.md) or [visionos-icon.md](visionos-icon.md).
+6. tvOS or visionOS target: build its stack from the same SVG art in
+   `Icon/tvOS.xcassets` or `Icon/visionOS.xcassets` with
+   [tvos-icon.md](tvos-icon.md) or [visionos-icon.md](visionos-icon.md),
+   and add the catalog to that target in `project.yml` (the sibling file
+   has the lines).
 
-   Check: the stack compiles with no `error:` lines from `actool`.
+   Check: the stack compiles with no `error:` lines from `actool`, and
+   `./build.sh --platform <id>` builds the target.
 
 7. Look at the real icon on each target.
 

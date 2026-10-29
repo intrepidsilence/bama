@@ -20,7 +20,8 @@ errors listed under Checks.
 
 ## The catalog
 
-In the tvOS target's `Assets.xcassets/`:
+In `Icon/tvOS.xcassets/` (any catalog name works; this is the one BAMA
+uses), with its own `Contents.json` of `{ "info" : { "author" : "xcode", "version" : 1 } }`:
 
 ```text
 App Icon & Top Shelf Image.brandassets/
@@ -90,9 +91,22 @@ Pixel sizes:
 | Top Shelf Image Wide | 2320 x 720 | 4640 x 1440 |
 
 The target's build setting names the brand assets, not the stack:
-`ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image"` (in
-XcodeGen, under the tvOS target's `settings`). Xcode's own tvOS template
-uses that name.
+`ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image"`. Xcode's
+own tvOS template uses that name. In the multi-platform template's
+`project.yml`, add the catalog and the setting to the tvOS target:
+
+```yaml
+  <App>-tvOS:
+    sources:
+      - path: Shared
+      - path: Icon/tvOS.xcassets
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"
+```
+
+`./build.sh --platform tvos` regenerates the Xcode project from
+`project.yml` on every build.
 
 Rules for the layers: [HIG App icons, tvOS]
 
@@ -119,7 +133,7 @@ them:
 
 ```bash
 r="${CLAUDE_SKILL_DIR}/scripts/render_layer.swift"
-stack="<tvOS target>/Assets.xcassets/App Icon & Top Shelf Image.brandassets/App Icon.imagestack"
+stack="Icon/tvOS.xcassets/App Icon & Top Shelf Image.brandassets/App Icon.imagestack"
 for spec in "1 " "2 @2x"; do
   scale=${spec%% *}; s=${spec#* }; w=$((400 * scale)); h=$((240 * scale))
   swift "$r" layer Icon/AppIcon.icon/Assets/front.svg "$stack/Front.imagestacklayer/Content.imageset/front$s.png" $w $h --fit 0.9
@@ -140,7 +154,7 @@ Xcode compiles the catalog with the target. To check it alone:
 
 ```bash
 mkdir -p .work/icon/tvos
-xcrun actool "<tvOS target>/Assets.xcassets" --compile .work/icon/tvos \
+xcrun actool "Icon/tvOS.xcassets" --compile .work/icon/tvos \
   --platform appletvos --target-device tv --minimum-deployment-target 26.0 \
   --app-icon "App Icon & Top Shelf Image" \
   --output-partial-info-plist .work/icon/tvos/partial.plist \

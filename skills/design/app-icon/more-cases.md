@@ -28,13 +28,13 @@ Check: the built app's `Contents/Resources` has `Assets.car` and
 In the multi-platform template (one XcodeGen target per platform):
 
 - The macOS, iOS (iPhone and iPad), and watchOS targets each list the one
-  `Icon/AppIcon.icon` as a resource and keep
-  `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon`.
-- The tvOS target has its own asset catalog with
+  `Icon/AppIcon.icon` as a source and keep
+  `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` (the template does this).
+- The tvOS target gets `Icon/tvOS.xcassets` with
   `App Icon & Top Shelf Image.brandassets` and
   `ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"`
   ([tvos-icon.md](tvos-icon.md)).
-- The visionOS target has its own asset catalog with
+- The visionOS target gets `Icon/visionOS.xcassets` with
   `AppIcon.solidimagestack` ([visionos-icon.md](visionos-icon.md)).
 
 Check: each target builds, and each built app's `Info.plist` names its
