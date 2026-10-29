@@ -16,7 +16,15 @@ claude.ai account.
    use.
 2. The user grants the terminal app (Terminal, iTerm, Ghostty, or the
    Claude app) **Accessibility** and **Screen Recording** in System
-   Settings > Privacy & Security. The app may need a restart after.
+   Settings > Privacy & Security (macOS 27 calls the pane just
+   **Privacy**). Claude can open each list directly:
+
+   ```bash
+   open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility"
+   open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ScreenCapture"
+   ```
+
+   The app may need a restart after.
 3. Each session, Claude asks for access to the reference app only (and
    iPhone Mirroring for an iPhone app). The user approves each app.
    Browsers are view-only and terminals are click-only for computer use.

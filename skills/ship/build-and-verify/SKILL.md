@@ -116,8 +116,9 @@ sidebars, and materials exactly as on screen. It needs Screen Recording
 permission for the app that runs the command (Terminal, Ghostty, or
 Claude). If a snapshot line ends with `(fallback: ...)`, the permission is
 missing and sidebars and glass render blank. Claude asks the user to allow
-it in System Settings > Privacy & Security > Screen & System Audio
-Recording, then restart the terminal.
+it in System Settings > Privacy & Security (macOS 27: Privacy) > Screen &
+System Audio Recording, then restart the terminal. Claude can open that
+list with `open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ScreenCapture"`.
 
 If every snapshot fails, or `screencapture` says "could not create image
 from window", the display is probably asleep. The template's snapshot mode
