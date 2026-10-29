@@ -1,0 +1,34 @@
+# XcodeGen spec. `./build.sh` runs `xcodegen generate` before every build, so
+# the .xcodeproj is never edited by hand and stays out of git.
+# new-app.sh wrote one target per platform the brief names. To add a platform
+# later, append its block from the bama new-app skill's template-multi/project/
+# folder and add its id to tools/platforms.
+name: __APP_NAME__
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "26.0"
+    iOS: "26.0"
+    tvOS: "26.0"
+    watchOS: "26.0"
+    visionOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    # App code runs on the main thread unless it says otherwise.
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+    GENERATE_INFOPLIST_FILE: YES
+    INFOPLIST_KEY_CFBundleDisplayName: __APP_NAME__
+    # Simulators run ad hoc signed apps. build.sh signs the Mac app itself.
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+packages:
+  # Rules and data logic with no SwiftUI, shared by every app target.
+  __APP_NAME__Kit:
+    path: __APP_NAME__Kit
+targets:

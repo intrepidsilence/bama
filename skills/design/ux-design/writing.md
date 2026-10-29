@@ -30,7 +30,8 @@ under `## Voice`, for example "calm, direct, brief". Tone changes with the
 moment: plain and serious for errors, a little warmer for a finished goal.
 
 - Talk to people as "you". Never "the user".
-- Say "click" on a Mac, never "tap".
+- Say "click" on a Mac, "tap" on iPhone, iPad, Apple Watch, and Vision
+  Pro, and "select" on Apple TV. The table: [SKILL.md](SKILL.md#5-write-the-words).
 - No idioms or jokes that do not translate. Explain a technical term the
   first time, or drop it.
 

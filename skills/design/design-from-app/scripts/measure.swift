@@ -1,6 +1,12 @@
 #!/usr/bin/env swift
 // Measures a screenshot so a design can be rebuilt from numbers, not guesses.
-// Coordinates in and out are points: pixels divided by --scale (default 2, a Retina capture).
+// Coordinates in and out are points: pixels divided by --scale (default 2).
+// Scale per platform: Mac Retina 2, iPhone 3 (2 on older models), iPad 2,
+// Apple TV HD 1 (1920 x 1080 px), Apple TV 4K 2 (3840 x 2160 px), Apple Watch 2,
+// Vision Pro window captures 2. `info` prints the size at the scale given, so
+// run it with the right --scale and check the points against the device.
+// Output files (crop) go where the caller says; keep them in the project's
+// .work/compare/ folder.
 //
 //   swift measure.swift info   shot.png
 //   swift measure.swift color  shot.png x y [x y ...]       hex color at each point
@@ -57,7 +63,7 @@ func px(_ points: String) -> Int { Int((Double(points) ?? 0) * scale) }
 func pt(_ pixels: Int) -> String { String(format: "%g", Double(pixels) / scale) }
 
 guard args.count >= 2 else {
-    print("usage: swift measure.swift <info|color|hline|vline|rows|cols|palette|crop> shot.png ...")
+    print("usage: swift measure.swift <info|color|hline|vline|rows|cols|palette|ink|crop> shot.png ... [--scale 2] [--tolerance 12]")
     exit(1)
 }
 let command = args[0]
@@ -95,6 +101,11 @@ func bands(count: Int, origin: Int, isContent: (Int) -> Bool) {
 switch command {
 case "info":
     print("\(bitmap.width) x \(bitmap.height) px = \(pt(bitmap.width)) x \(pt(bitmap.height)) pt at scale \(String(format: "%g", scale))")
+    switch (bitmap.width, bitmap.height) {
+    case (1920, 1080): print("looks like Apple TV HD: use --scale 1")
+    case (3840, 2160): print("looks like Apple TV 4K: use --scale 2")
+    default: break
+    }
 case "color":
     for pair in stride(from: 0, to: rest.count - 1, by: 2) {
         print("\(rest[pair]),\(rest[pair + 1])  \(hex(bitmap.pixel(px(rest[pair]), px(rest[pair + 1]))))")

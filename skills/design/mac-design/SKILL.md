@@ -1,13 +1,23 @@
 ---
 name: mac-design
-description: Design rules that make a SwiftUI app look and feel like a native Mac app on macOS 26 and later, from Apple's eight design principles to Liquid Glass, layout, toolbars, menus, search, keyboard, type, color, and dark mode. Use when building or reviewing any window, sidebar, toolbar, menu, panel, or settings screen, or when the user asks for a more native, Apple-like, or better designed app.
+description: Design rules that make a SwiftUI app look and feel like a native Mac app on macOS 26 and later, from Apple's eight design principles to Liquid Glass, layout, toolbars, menus, search, keyboard, type, color, and dark mode. Use when building or reviewing any Mac window, sidebar, toolbar, menu, panel, or settings screen, the Mac target of a multi-platform app, or when the user asks for a more native, Apple-like, or better designed Mac app.
 ---
 
 # Mac design
 
-Apple already designed your app. Pick the right system parts, arrange them,
-and stay out of their way. Use the system first. Add custom design only
-where the system has nothing.
+Records: `${user_config.records}` (vault `${user_config.muninn_vault}`). See [CONVENTIONS.md](../../../CONVENTIONS.md), section 8.
+
+Apple already designed most of the app. Claude picks the right system
+parts, arranges them, and stays out of their way. The system comes first.
+Custom design goes only where the system has nothing.
+
+This skill is for macOS. iPhone, iPad, Apple TV, Apple Watch, and Vision
+Pro use `bama:platform-design`. In a multi-platform app the Mac version
+gets real Mac idioms, not the iPad layout: menu bar commands with
+shortcuts, a toolbar, inline pickers in menus (`.pickerStyle(.inline)`,
+never a nested submenu), and resizable windows with a sidebar. Every
+Mac-only value goes through `Platform.value` or `#if os(macOS)`
+(CONVENTIONS.md, section 2).
 
 - The full checklist with sources: [design-rules.md](design-rules.md).
   Use it for reviews.
@@ -19,13 +29,14 @@ where the system has nothing.
   `"${CLAUDE_SKILL_DIR}/scripts/hig.sh" <topic>` (for example `toolbars`,
   `sheets`). It prints the HIG page as plain text.
 - App-wide tokens (colors, radii, motion): call the Skill tool with
-  `design-system`.
+  `bama:design-system`.
 - How a feature works and what it says (names, flow, modals, errors,
-  accessibility): call the Skill tool with `ux-design`.
+  accessibility): call the Skill tool with `bama:ux-design`.
 - Spacing, alignment, and the checks that catch misalignment: call the
-  Skill tool with `layout-grid`.
-- Parts of your own instead of Apple's: call the Skill tool with
-  `design-kit`, or `design-from-app` to match an app the user names.
+  Skill tool with `bama:layout-grid`.
+- Custom parts instead of Apple's: call the Skill tool with
+  `bama:design-kit`, or `bama:design-from-app` to match an app the user
+  names.
 
 ## Apple's eight principles
 
@@ -42,10 +53,11 @@ Use them as the review lens for every screen (HIG Design principles, 2026):
 
 Every screen answers: Where am I? What can I do? Where can I go?
 
-## Before you write views
+## Before writing views
 
-Write these four under `## Design plan` in `docs/BRIEF.md`, or in
-`docs/DESIGN.md` when the brief would pass one page:
+Claude writes these under `## Design plan` in `docs/BRIEF.md`, or in
+`docs/DESIGN.md` when the brief would pass one page. In `muninn` mode the
+plan is one memory, type `decision`, recalled with the brief:
 
 1. **Archetype**: sidebar window, single-window document, menu bar extra, or
    quick-capture panel. Most personal apps are a sidebar window plus one
@@ -99,7 +111,7 @@ A to-do app lives in its quick-add panel.
 
 ## Toolbars and menus
 
-- Each toolbar item sits over the column it acts on: nothing of your own
+- Each toolbar item sits over the column it acts on: nothing of the app's own
   over the sidebar, New and Sort over the list, actions on the selection
   over the detail, the inspector toggle over the inspector. Full rules and
   a checked example: [toolbars.md](toolbars.md).
@@ -117,7 +129,7 @@ A to-do app lives in its quick-add panel.
 - Standard shortcuts keep their meaning: Command-C, V, X, Z, W, Q, N, comma.
 - Disable menu items that do not apply; keep them visible. SwiftUI menus
   only update when the selection is passed into the commands from the App
-  (`swift-swiftui`, "Menu commands").
+  (`bama:swift-swiftui`, "Menu commands").
 - Window titles name the content ("Today"), not the app.
 
 ## Windows open calm

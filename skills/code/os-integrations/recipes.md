@@ -1,6 +1,8 @@
-# Integration recipes
+# macOS integration recipes
 
-Short, working shapes, each taken from a shipped menu bar utility.
+Short, working shapes, each taken from a shipped menu bar utility. Other
+platforms: [ios.md](ios.md), [tvos.md](tvos.md), [watchos.md](watchos.md),
+[visionos.md](visionos.md).
 
 ## Contents
 
@@ -125,7 +127,7 @@ let image = try await SCScreenshotManager.captureImage(contentFilter: filter, co
 
 Check `CGPreflightScreenCaptureAccess()` first. Capture all displays in
 parallel with a task group. For a "freeze the screen" picker, show the
-picker first, then capture (see the `performance` skill).
+picker first, then capture (`bama:performance`).
 
 ## Launch at login
 
@@ -141,11 +143,11 @@ In Info.plist (or XcodeGen `info.properties`):
 
 ```yaml
 CFBundleURLTypes:
-  - CFBundleURLName: com.you.app
-    CFBundleURLSchemes: [yourapp]
+  - CFBundleURLName: com.example.app
+    CFBundleURLSchemes: [myapp]
 ```
 
-Handle `yourapp://action/<name>` with `.onOpenURL` on a scene, or in the
+Handle `myapp://action/<name>` with `.onOpenURL` on a scene, or in the
 app delegate's `application(_:open:)` for a menu bar app.
 
 ## App Intents
@@ -170,13 +172,13 @@ intent metadata. A plain `swift build` does not.
 ## CLI and Darwin pings
 
 For a CLI that owns plain files or its own SQLite (not a SwiftData store).
-For a SwiftData app, use the `agent-cli` skill: the CLI sends commands to
+For a SwiftData app, use `bama:agent-cli`: the CLI sends commands to
 the running app instead. Here the CLI writes, then pings the app:
 
 ```swift
-notify_post("com.you.app.changed")                         // CLI side
+notify_post("com.example.app.changed")                     // CLI side
 var token: Int32 = 0                                       // app side
-notify_register_dispatch("com.you.app.changed", &token, .main) { _ in
+notify_register_dispatch("com.example.app.changed", &token, .main) { _ in
     MainActor.assumeIsolated { AppModel.shared.reload() }
 }
 ```
@@ -189,11 +191,13 @@ A development-only command channel lets an agent drive the running app:
 
 ```swift
 DistributedNotificationCenter.default().addObserver(
-    forName: .init("com.you.app.command"), object: nil, queue: .main) { note in
+    forName: .init("com.example.app.command"), object: nil, queue: .main) { note in
     let command = note.object as? String ?? "status"
     MainActor.assumeIsolated { DebugBridge.run(command) }   // writes status.json
 }
 ```
 
-A script posts the command and reads `status.json` back. The
-`test-mac-app` skill builds on this.
+A script posts the command and reads `status.json` back. `bama:test-app`
+builds on this. On iOS, tvOS, watchOS, and visionOS a development-only
+HTTP debug server does this job (`debug-server-architect`, when the
+session lists it).

@@ -8,6 +8,7 @@ Icon Composer, October 2026.
 - Xcode or XcodeGen app
 - Convert a flat icon
 - A Dock icon that changes (themes, styles)
+- An alternate icon on iOS, iPadOS, and tvOS
 - Layer tricks
 
 ## Xcode or XcodeGen app
@@ -24,6 +25,21 @@ No `build.sh` or `make_icon.sh` needed: Xcode 26 compiles a `.icon` on its own.
 Check: the built app's `Contents/Resources` has `Assets.car` and
 `AppIcon.icns`, and its `Info.plist` has `CFBundleIconName` = `AppIcon`.
 
+In the multi-platform template (one XcodeGen target per platform):
+
+- The macOS, iOS (iPhone and iPad), and watchOS targets each list the one
+  `Icon/AppIcon.icon` as a resource and keep
+  `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon`.
+- The tvOS target has its own asset catalog with
+  `App Icon & Top Shelf Image.brandassets` and
+  `ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"`
+  ([tvos-icon.md](tvos-icon.md)).
+- The visionOS target has its own asset catalog with
+  `AppIcon.solidimagestack` ([visionos-icon.md](visionos-icon.md)).
+
+Check: each target builds, and each built app's `Info.plist` names its
+icon (`CFBundleIcons` > `CFBundlePrimaryIcon`).
+
 ## Convert a flat icon
 
 A flat icon (an `.icns`, PNGs, or SVGs with the body drawn in) becomes
@@ -39,6 +55,9 @@ layers:
   panel in front of it). Shapes that never overlap can share a layer.
 
 ## A Dock icon that changes (themes, styles)
+
+macOS only. On iOS, iPadOS, and tvOS use an alternate icon instead (next
+section).
 
 `NSApp.applicationIconImage` shows a flat picture: the system adds no glass
 to it, and it ignores the dark, tinted, and clear looks. So:
@@ -73,6 +92,18 @@ static func glassImage(design: String, theme: String, dark: Bool) -> NSImage? {
 
 Use the same pictures inside the app (a header, an icon picker) so the app
 shows the icon the Dock shows.
+
+## An alternate icon on iOS, iPadOS, and tvOS
+
+People pick it in the app's settings; the app calls
+`UIApplication.shared.setAlternateIconName(_:)`. Each alternate is its
+own icon in the target, listed in the Alternate App Icon Sets build
+setting (`ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`). On iOS and
+iPadOS each alternate needs its own dark, clear, and tinted looks, as
+the main icon does. [HIG App icons; Xcode, Configuring your app icon]
+
+Check: the setting lists every alternate, and choosing one in the app
+changes the Home screen icon on the project simulator.
 
 ## Layer tricks
 

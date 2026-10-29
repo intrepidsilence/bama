@@ -21,8 +21,8 @@ Edit, Window, and Help.
 
 ## Menu bar order
 
-App, File, Edit, Format, View, your own menus, Window, Help. Your own menus
-follow the app's structure, most general first (Mail: Mailbox, Message).
+App, File, Edit, Format, View, the app's own menus, Window, Help. The
+app's own menus follow the app's structure, most general first (Mail: Mailbox, Message).
 
 | Menu | What goes there |
 |---|---|

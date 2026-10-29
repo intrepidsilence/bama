@@ -2,6 +2,7 @@
 # Saves a PNG of the largest on-screen window of an app.
 # Usage: window-shot.sh <app name as in the menu bar> <out.png>
 #   window-shot.sh "<App Name>" docs/screens/01-inbox.png
+#   window-shot.sh "iPhone Mirroring" docs/screens/ios/01-inbox.png
 # Needs Screen Recording permission for the terminal (or Claude) that runs it.
 set -euo pipefail
 app=${1:?usage: window-shot.sh <AppName> <out.png>}

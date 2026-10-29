@@ -1,0 +1,3 @@
+interface:
+  display_name: "New App"
+  short_description: "Scaffold a SwiftUI app for Mac, iPhone, iPad, Apple TV, Watch, or Vision Pro"

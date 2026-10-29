@@ -1,15 +1,45 @@
 ---
 name: os-integrations
-description: Deep macOS integrations for a native app, such as global hotkeys, menu bar items, floating panels, window control with Accessibility, screen capture and recording, clipboard, Shortcuts and Spotlight, URL schemes, login items, a CLI, and the permissions each one needs. Use when an app must reach outside its own window or control other apps.
+description: System integrations for an Apple app on every platform, such as global hotkeys, menu bar items, and Accessibility on the Mac; App Intents, widgets, Live Activities, and controls on iPhone and iPad; Top Shelf on Apple TV; complications and workouts on Apple Watch; immersive spaces on Vision Pro; and the permission or entitlement each needs. Use when an app must reach outside its own window, control other apps, or appear in a system surface.
 ---
 
-# macOS integrations
+# System integrations
 
-A Mac app is a set of entry points around the system, not one window. This
-skill picks the API for each entry point and the permission it costs.
-Code for every row is in [recipes.md](recipes.md).
+An app is a set of entry points around the system, not one window. This
+skill picks the API for each entry point and the permission or entitlement
+it costs. Voice and paths follow [CONVENTIONS.md](../../../CONVENTIONS.md).
 
-## Pick the API
+Claude reads the brief's target platforms and "System hooks" first, then
+opens the file for each target. Check: every hook in the brief has a row
+in one of these files.
+
+| Platform | File |
+| --- | --- |
+| macOS | this page, code in [recipes.md](recipes.md) |
+| iOS and iPadOS | [ios.md](ios.md) |
+| tvOS | [tvos.md](tvos.md) |
+| watchOS | [watchos.md](watchos.md) |
+| visionOS | [visionos.md](visionos.md) |
+
+Rules for every platform:
+
+- Prefer the row with no permission when two rows solve the same job.
+- Ask for a permission at the moment of use, with one line on what breaks
+  without it. Every usage description key (`NSCameraUsageDescription`,
+  `NSMicrophoneUsageDescription`, and so on) is in Info.plist before the
+  first request, or the app crashes.
+- Extensions (widgets, controls, Top Shelf, complications, share) are their
+  own targets in `project.yml`. They read the app's data from an App Group
+  (`bama:swift-swiftui`, multiplatform.md, "Sharing a store").
+- Every system surface that shows the app's data hears about each change
+  from the one place that announces changes. List those surfaces when a
+  feature changes data.
+- App Intents and extensions need an Xcode build (XcodeGen project), which
+  extracts the intent metadata. A plain `swift build` does not.
+
+## macOS: pick the API
+
+Code for each row is in [recipes.md](recipes.md).
 
 | Want | API | Permission |
 | --- | --- | --- |
@@ -28,13 +58,13 @@ Code for every row is in [recipes.md](recipes.md).
 | Paste into the front app | Write `NSPasteboard`, then post Command-V with `CGEvent` | Accessibility |
 | Screenshot | ScreenCaptureKit `SCScreenshotManager` | Screen Recording |
 | Window thumbnails | `SCScreenshotManager` with an `SCContentFilter` per window | Screen Recording |
-| Screen recording to MP4 | `SCStream` + `SCRecordingOutput` (`AVAssetWriter` when you edit frames) | Screen Recording, Microphone |
+| Screen recording to MP4 | `SCStream` + `SCRecordingOutput` (`AVAssetWriter` to edit frames) | Screen Recording, Microphone |
 | Clipboard history | Poll `NSPasteboard.general.changeCount` | None |
 | Text in images | Vision `RecognizeTextRequest` | None |
 | Launch at login | `SMAppService.mainApp.register()` | User approves once |
 | Links from scripts, Stream Deck, Raycast | `CFBundleURLTypes` + `.onOpenURL` | None |
 | Shortcuts app and Spotlight actions | `AppIntent` (App Shortcuts are not supported on macOS). A result or confirmation view is a snippet | None |
-| Agent or script reads and changes data | The app binary as a CLI, talking to the running app (`agent-cli` skill) | None |
+| Agent or script reads and changes data | The app binary as a CLI, talking to the running app (`bama:agent-cli`) | None |
 | A CLI that writes plain files or its own SQLite tells the app to reload | Darwin notification (`notify_post`) | None |
 | Keep the Mac awake | `IOPMAssertionCreateWithName` | None |
 | System stats | `host_statistics64`, `proc_pid_rusage`, `IOPSCopyPowerSourcesInfo` | None |
@@ -44,9 +74,7 @@ Code for every row is in [recipes.md](recipes.md).
 | Dock menu | `applicationDockMenu(_:)` in the app delegate | None |
 | Services and Share menu | `NSServices` in Info.plist, `ShareLink` | None |
 
-Prefer the row with no permission when two rows solve the same job.
-
-## Permissions
+## macOS: permissions
 
 - Ask at the moment of use. Explain in one line what breaks without it.
   The exception: an app whose core job needs the permission (a window
@@ -55,14 +83,14 @@ Prefer the row with no permission when two rows solve the same job.
   that opens the right pane:
   `x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility`
   (or `Privacy_ScreenCapture`, `Privacy_AllFiles`).
-- The user grants it in System Settings, and nothing calls your app back.
+- The user grants it in System Settings, and nothing calls the app back.
   Check every 1 to 2 seconds while a permission is missing or a view that
   shows it is open. Otherwise check every 20 seconds, with a timer
   tolerance. Check once more right when such a view opens.
-- Every `NS...UsageDescription` key (camera, microphone, Apple Events)
-  must be in Info.plist before the first request, or the app crashes.
+- `NSAppleEventsUsageDescription` goes in Info.plist before the first
+  Apple Event, like every other usage key.
 
-## Menu bar items, widgets, and snippets
+## macOS: menu bar items, widgets, and snippets
 
 - A menu bar item shows a menu, unless the feature is too complex for one.
   Its icon is a template image (an SF Symbol works). People can turn it
@@ -82,7 +110,7 @@ Prefer the row with no permission when two rows solve the same job.
   light and dark, and clear without the spoken text.
 - Badge the Dock icon only with a count of unread notifications.
 
-## Signing keeps grants
+## macOS: signing keeps grants
 
 macOS stores Accessibility and Screen Recording grants per code signature
 and path. To keep them across rebuilds:
@@ -106,8 +134,12 @@ Each feature gets: a menu item with a shortcut, a URL
 (`<app>://action/<name>`), and an App Intent. The same action enum backs all
 three, so a new action shows up everywhere at once. App Intent enum titles
 must be literals, so they can drift from menu titles: add a self-test check
-that they match. The URL also lets
-`test-mac-app` drive the feature from a script.
+that they match. The URL also lets `bama:test-app` drive the feature from a
+script. On iPadOS the same holds: `.commands` give the menu bar and the
+Command key overlay. On iPhone, tvOS, watchOS, and visionOS a feature is
+reachable from the UI, a URL, and an App Intent.
 
 Done when every entry point in the brief's "System hooks" works from a
-clean install, and Settings shows the state of every permission it needs.
+clean install on each target platform, and the app shows the state of
+every permission it needs (Settings on the Mac, the app's own settings
+page elsewhere).

@@ -1,0 +1,19 @@
+  # A watch-only app: it installs and runs without an iPhone app. To pair it with
+  # the iPhone app later, replace WKWatchOnly with
+  # INFOPLIST_KEY_WKCompanionAppBundleIdentifier: <the iPhone bundle id>.
+  __APP_NAME__-watchOS:
+    type: application
+    platform: watchOS
+    sources:
+      - path: Shared
+      - path: Icon/AppIcon.icon
+    dependencies:
+      - package: __APP_NAME__Kit
+    settings:
+      base:
+        PRODUCT_NAME: __APP_NAME__
+        PRODUCT_BUNDLE_IDENTIFIER: __BUNDLE_ID__.watchkitapp
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_WKApplication: YES
+        INFOPLIST_KEY_WKWatchOnly: YES
+    scheme: {}

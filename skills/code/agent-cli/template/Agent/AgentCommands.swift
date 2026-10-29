@@ -48,7 +48,7 @@ enum AgentCommands {
             model.selection = item.persistentModelID
             return item.agentJSON
         },
-        AgentCommand(name: "items update", summary: "Change an item. Only the options you give change.",
+        AgentCommand(name: "items update", summary: "Change an item. Only the given options change.",
                      params: [.init(name: "id", required: true, positional: true, help: "the item's id"),
                               .init(name: "title", help: "new title"),
                               .init(name: "notes", help: "new notes"),

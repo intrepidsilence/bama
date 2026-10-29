@@ -1,9 +1,11 @@
 # Where a feature opens
 
-Code for each row of the surface table in [SKILL.md](SKILL.md). It compiles
-on macOS 26 with Swift 6.2 and main-actor default isolation (the
-`new-mac-app` template). `Item` is the template's SwiftData model, with a
-`dueDate: Date` field added for the popover example.
+Code for each row of the surface tables in [SKILL.md](SKILL.md). The Mac
+sections compile on macOS 26 with Swift 6.2 and main-actor default
+isolation (the Mac template from `bama:new-app`). `Item` is the template's
+SwiftData model, with a `dueDate: Date` field added for the popover
+example. "Other platforms" at the end covers iOS, iPadOS, tvOS, watchOS,
+and visionOS.
 
 ## Contents
 
@@ -18,6 +20,7 @@ on macOS 26 with Swift 6.2 and main-actor default isolation (the
 - Alert
 - Status instead of an alert
 - Unsaved changes
+- Other platforms
 
 ## Inline
 
@@ -229,5 +232,110 @@ Button("Cancel") {
 .confirmationDialog("Discard this note?", isPresented: $confirmDiscard) {
     Button("Discard", role: .destructive) { dismiss() }
     Button("Keep Editing", role: .cancel) {}
+}
+```
+
+## Other platforms
+
+The same SwiftUI modifiers present differently per platform. Where the
+right surface differs, branch with `#if os(...)` or
+`Platform.value(...)`, never a size class check alone (an iPad in a narrow
+window is compact, but it is still an iPad).
+
+### iOS and iPadOS
+
+A sheet for a short task. On iPhone, add detents when the top half is
+useful on its own; on iPad it shows as a centered form sheet.
+
+```swift
+.sheet(isPresented: $showingNew) {
+    NewTaskForm()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .interactiveDismissDisabled(form.hasChanges)   // ask before a swipe loses typing
+}
+```
+
+A popover on iPad, which iPhone shows as a sheet. Ask for the popover in
+compact width too only when the content is small:
+
+```swift
+.popover(isPresented: $showingDate) {
+    DatePicker("Due", selection: $item.dueDate).padding()
+        .presentationCompactAdaptation(.popover)
+}
+```
+
+Details beside the content on iPad, a sheet on iPhone:
+
+```swift
+.inspector(isPresented: $showingInspector) { ItemDetails(item: item) }
+```
+
+A camera, player, or game:
+
+```swift
+.fullScreenCover(isPresented: $playing) { PlayerView(item: item) }
+```
+
+### tvOS
+
+There are no popovers or inspectors. A task opens as a full-screen page:
+a push in the current `NavigationStack`, or `.fullScreenCover`. Back
+closes it. A text field goes on its own page, not in an alert.
+
+```swift
+NavigationLink(value: Route.newTask) { Label("Add Task", systemImage: "plus") }
+// ...
+.navigationDestination(for: Route.self) { route in
+    if route == .newTask { NewTaskPage() }   // full screen; Back returns to the row
+}
+```
+
+### watchOS
+
+Navigation is a short `NavigationStack` or vertical pages. A sheet is
+brief and rare, never a way to move through the app.
+
+```swift
+TabView {
+    TodayPage()
+    StatsPage()
+}
+.tabViewStyle(.verticalPage)      // the Digital Crown pages through
+```
+
+### visionOS
+
+Windows are the main surface. A side task opens a new window beside the
+current one; one 3D object goes in a volume; a big moment goes in an
+immersive space. Frequent controls for a window go in its toolbar, which
+the system shows as an ornament.
+
+```swift
+@main struct TasksApp: App {
+    var body: some Scene {
+        WindowGroup { ContentView() }
+        WindowGroup(id: "details", for: Item.ID.self) { $id in ItemDetails(id: id) }
+            .defaultWindowPlacement { _, context in
+                guard let main = context.windows.first else { return WindowPlacement() }
+                return WindowPlacement(.trailing(main))   // beside the main window
+            }
+        ImmersiveSpace(id: "focus") { FocusRoom() }
+    }
+}
+
+// Open them:
+@Environment(\.openWindow) private var openWindow
+@Environment(\.openImmersiveSpace) private var openImmersiveSpace
+Button("Show Details") { openWindow(id: "details", value: item.id) }
+Button("Enter Focus Room") { Task { await openImmersiveSpace(id: "focus") } }
+```
+
+A custom ornament, for controls only:
+
+```swift
+.ornament(attachmentAnchor: .scene(.bottom)) {
+    PlaybackControls().padding().glassBackgroundEffect()
 }
 ```

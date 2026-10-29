@@ -1,12 +1,14 @@
 # Accessibility audit
 
 How to check step 7 of [SKILL.md](SKILL.md) on a running build, and the
-SwiftUI modifiers that fix what it finds. Standard controls do most of this
+SwiftUI modifiers that fix what it finds. The audit below is for the Mac;
+"Other platforms" covers the simulators. Standard controls do most of this
 on their own. Custom controls need the work.
 
 ## Contents
 
 - Run the audit
+- Other platforms
 - Keyboard
 - VoiceOver
 - Custom controls
@@ -31,6 +33,43 @@ on their own. Custom controls need the work.
 
 Done when the audit shows no issues for the new views and both runs
 finish the flow without the mouse.
+
+## Other platforms
+
+Run the app on the project's simulator for the platform
+(`tools/snap.sh --platform <id> --open`), then:
+
+1. Open Accessibility Inspector, pick the simulator as the target, and run
+   the audit on each new view.
+2. Set the display options from the command line, one at a time, and look
+   at each new view:
+
+   ```bash
+   udid=$(awk '$1=="ios"{print $2}' .work/simulators)
+   xcrun simctl ui "$udid" content_size accessibility-extra-extra-extra-large
+   xcrun simctl ui "$udid" increase_contrast enabled
+   xcrun simctl ui "$udid" appearance dark
+   # put each back afterwards: content_size large, increase_contrast disabled
+   ```
+
+   A platform that does not support an option prints `unsupported`.
+3. Walk the flow with the platform's own input:
+
+   | Platform | Input to walk the flow |
+   | --- | --- |
+   | iOS | taps with XcodeBuildMCP or axe; every target at least 44 x 44 pt in the snapshot |
+   | iPadOS | the above, plus a hardware keyboard (Simulator, I/O > Keyboard): Tab between areas, arrows inside them |
+   | tvOS | the remote keys only (HID codes: arrows 79 to 82, select 40, Back 41); every element reachable, every focused label legible |
+   | watchOS | taps and the Crown (scroll over the simulator screen); every Crown action also works by touch |
+   | visionOS | the pointer stands in for the eyes; every control highlights and works with a click (the pinch) |
+
+4. VoiceOver labels: the Accessibility Inspector's inspection pointer shows
+   each element's label, value, and traits. They match the words on
+   screen. A full VoiceOver run happens on a device; when one is not
+   available, Claude says so in the report.
+
+Done when the audit shows no issues on each target, the largest text size
+clips nothing, and the flow finishes with each platform's input.
 
 ## Keyboard
 
@@ -158,6 +197,11 @@ Reduce Transparency is on.
 ```
 
 ## Text size
+
+On iOS, iPadOS, tvOS, watchOS, and visionOS, text styles pick the
+platform's size and follow the system text size setting where the platform
+has one; the minimum sizes per platform are in
+`bama:platform-design`, step 3. The rest of this section is the Mac.
 
 - macOS body text is 13 pt and nothing is under 10 pt. Use text styles
   (`.body`, `.callout`, `.caption`), not fixed sizes.

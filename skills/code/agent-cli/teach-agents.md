@@ -14,7 +14,7 @@ rest.
 ## The app's agent skill
 
 Save as `.claude/skills/<cli>/SKILL.md` in the app's repo. Replace the
-angle brackets. Keep it under 60 lines: list the five commands used most,
+angle brackets; `<repo>` is the absolute path of the app's repo. Keep it under 60 lines: list the five commands used most,
 and point at `help` for the rest.
 
 ```markdown
@@ -34,8 +34,9 @@ If the app is closed, the command opens it in the background.
   `error.code` and `error.message`, and do what the message says.
 - Find ids with `<cli> <noun> list` or `--search`. An id is 8 characters.
 - Destructive commands (<delete, send>) only report what they would do.
-  Show the user that report and ask before you run it again with `--yes`.
-- To try something without real data, add `APP_STORE=/tmp/<cli>-test.store`
+  Show the user that report and ask before running it again with `--yes`.
+- To try something without real data, put
+  `mkdir -p <repo>/.work/sock <repo>/.work/tmp && APP_STORE=<repo>/.work/tmp/try.store APP_AGENT_SOCKET=<repo>/.work/sock/try.sock`
   in front of the command.
 
 ## Main commands
@@ -61,6 +62,11 @@ Everything else: `<cli> help`, and `<cli> help <command>` for its options.
 
 Copy the same file to each place the user wants. Update all of them when a
 command changes.
+
+The copies in `~/.claude/skills/` and `~/.codex/skills/` live outside the
+project. Claude adds each one it writes to the project's
+`tools/footprint.sh` in the same change (CONVENTIONS section 4), as
+"listed only": they are the user's agent setup, so `clean` leaves them.
 
 ## Permissions
 
@@ -89,11 +95,18 @@ codex mcp add <cli> -- ~/Applications/<App>.app/Contents/MacOS/<App> mcp
 Claude Desktop, in `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
-{ "mcpServers": { "<cli>": { "command": "/Users/<you>/Applications/<App>.app/Contents/MacOS/<App>", "args": ["mcp"] } } }
+{ "mcpServers": { "<cli>": { "command": "/Users/<user>/Applications/<App>.app/Contents/MacOS/<App>", "args": ["mcp"] } } }
 ```
 
 Restart Claude Desktop after editing. Its logs are in
 `~/Library/Logs/Claude/mcp-server-<cli>.log`.
+
+These registrations live outside the project: `claude mcp add --scope
+user` writes to `~/.claude.json`, `codex mcp add` to `~/.codex/config.toml`,
+and Claude Desktop reads the file above. Ask the user before changing any
+of them, and add each one made to `tools/footprint.sh` as "listed only",
+with the command that removes it (`claude mcp remove <cli>`,
+`codex mcp remove <cli>`, or deleting the `<cli>` entry by hand).
 
 Tools are named like the commands with `_` for spaces (`items_add`), carry
 `readOnlyHint` and `destructiveHint`, and take the same options as the CLI.

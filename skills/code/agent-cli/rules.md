@@ -28,10 +28,15 @@ of Optical Flow and Onyx.
 - When the app is not running, the CLI opens it with `open -g` (in the
   background) and waits up to 10 seconds. `--no-launch` fails with exit 4
   instead.
-- `APP_STORE=/tmp/x.store` moves the database and the socket
-  (`/tmp/x.store.sock`), so a test run starts its own copy of the app and
-  never touches real data. `APP_AGENT_SOCKET` moves the socket alone.
-- A socket path must stay under 104 bytes. Keep test stores in `/tmp`.
+- `APP_STORE=<root>/.work/check.store` moves the database and, by
+  default, the socket (`<store>.sock`), so a test run starts its own copy
+  of the app and never touches real data. `APP_AGENT_SOCKET` moves the
+  socket alone.
+- A socket path must stay under 104 bytes. A store path deep in a project
+  folder makes `<store>.sock` too long, so test runs also set
+  `APP_AGENT_SOCKET=<root>/.work/sock/<short name>.sock`. The app refuses
+  a longer path with a message that says so. Test files never go in `/tmp`
+  (CONVENTIONS section 3).
 
 ## Commands
 
@@ -93,7 +98,7 @@ of Optical Flow and Onyx.
 
 ## Tests
 
-- `check-agent-cli.sh <cli>` after every new command.
+- `check-agent-cli.sh <cli> [project-root]` after every new command.
 - Keep the parsing and result code in plain functions, and give each
   command one test in the app's tests with a test store.
 - Before each release, let a fresh `claude -p` session do one real task

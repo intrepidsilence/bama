@@ -29,7 +29,7 @@ and WWDC26-250. A model is sometimes wrong, so the design plans for that.
   its own.
 - Offer a few alternatives when people are choosing (three titles, not
   one).
-- When people correct a result, use the correction and show that you did.
+- When people correct a result, use the correction and show that the app did.
 - Optional thumbs up or down for feedback, never a prompt that interrupts.
 
 ## Show progress

@@ -1,17 +1,26 @@
 #!/usr/bin/env swift
 // Compares a rebuild with its reference screenshot.
-//   swift compare.swift reference.png build.png out-folder [x y w h]
+//   swift compare.swift reference.png build.png out-folder [x y w h] [--scale 2]
+// out-folder is normally .work/compare/<name> in the project.
 // Writes side-by-side.png, diff.png (red where pixels differ), and overlay.png
 // (the build at 50% over the reference), and prints how many pixels differ.
-// An optional x y w h (points; both images are 2x captures) compares one region,
-// so you can fix one component at a time. Both images must have the same scale.
+// An optional x y w h (points) compares one region, so one part can be fixed at
+// a time. --scale is pixels per point (Mac 2, iPhone 3, iPad 2, Apple TV HD 1,
+// Apple TV 4K 2, Watch 2, Vision Pro 2). Both images must have the same scale.
 
 import AppKit
 import CoreGraphics
 import Foundation
 
-let args = Array(CommandLine.arguments.dropFirst())
-guard args.count >= 3 else { print("usage: swift compare.swift reference.png build.png out-folder [x y w h]"); exit(1) }
+var args = Array(CommandLine.arguments.dropFirst())
+var scale = 2.0
+if let i = args.firstIndex(of: "--scale"), i + 1 < args.count, let value = Double(args[i + 1]) {
+    scale = value
+    args.removeSubrange(i...(i + 1))
+}
+guard args.count >= 3 else {
+    print("usage: swift compare.swift reference.png build.png out-folder [x y w h] [--scale 2]"); exit(1)
+}
 
 func load(_ path: String) -> CGImage {
     guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil),
@@ -43,9 +52,15 @@ let out = args[2]
 try? FileManager.default.createDirectory(atPath: out, withIntermediateDirectories: true)
 
 if args.count >= 7, let x = Double(args[3]), let y = Double(args[4]), let w = Double(args[5]), let h = Double(args[6]) {
-    let rect = CGRect(x: x * 2, y: y * 2, width: w * 2, height: h * 2)
-    reference = reference.cropping(to: rect)!
-    build = build.cropping(to: rect)!
+    let rect = CGRect(x: x * scale, y: y * scale, width: w * scale, height: h * scale)
+    guard let a = reference.cropping(to: rect), let b = build.cropping(to: rect) else {
+        print("region is outside an image"); exit(1)
+    }
+    reference = a
+    build = b
+}
+if reference.width != build.width || reference.height != build.height {
+    print("sizes differ: reference \(reference.width) x \(reference.height) px, build \(build.width) x \(build.height) px")
 }
 
 let width = max(reference.width, build.width), height = max(reference.height, build.height)

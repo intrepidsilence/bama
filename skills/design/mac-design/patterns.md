@@ -1,7 +1,8 @@
 # SwiftUI patterns for macOS
 
 Code that compiles on macOS 26 with Swift 6.2 and main-actor default isolation
-(the `new-mac-app` template). `Item` is the template's SwiftData model. Rename it to yours.
+(the Mac template from `bama:new-app`). `Item` is the template's SwiftData model.
+Rename it to the app's own.
 
 Imports used across these snippets:
 
@@ -427,7 +428,7 @@ the reverted values in testing (the next fetch returned the old state).
 @Environment(\.undoManager) private var undoManager
 
 func complete(_ todo: Todo) {
-    let uid = todo.uid                       // your own UUID, stable across saves
+    let uid = todo.uid                       // the app's own UUID, stable across saves
     todo.isDone = true
     try? context.save()
     undoManager?.registerUndo(withTarget: store) { store in
@@ -489,7 +490,7 @@ CoreFoundation Darwin center is the same mechanism:
 
 ```swift
 CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
-                                     CFNotificationName("com.you.app.changed" as CFString), nil, nil, true)
+                                     CFNotificationName("com.example.app.changed" as CFString), nil, nil, true)
 ```
 
 The app adds an observer with `CFNotificationCenterAddObserver` and
@@ -532,7 +533,8 @@ allowed". Show the status in Settings and open
 Implement the delegate's `didReceive` as `nonisolated`, call the
 completion handler right away, and hop to the main actor for the work.
 Skip notifications, login items, and anything else with a system prompt
-when the store points to `/tmp`, so tests never trigger a prompt.
+when `APP_STORE` is set (a test store in `.work/`), so tests never
+trigger a prompt.
 
 ### A floating capture panel without a title bar
 

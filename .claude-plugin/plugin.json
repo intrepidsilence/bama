@@ -1,7 +1,7 @@
 {
   "name": "bama",
   "version": "1.0.0",
-  "description": "Build any Mac app: skills to research, clone, plan, scaffold, design, integrate, optimize, test, and ship native macOS apps with Swift and SwiftUI.",
+  "description": "Build any Apple app: skills to research, clone, plan, scaffold, design, integrate, optimize, test, and ship native apps for macOS, iOS, iPadOS, tvOS, watchOS, and visionOS with Swift and SwiftUI.",
   "author": {
     "name": "Dave Ebbelaar",
     "url": "https://github.com/daveebbelaar"
@@ -24,7 +24,13 @@
     "design-system",
     "grid",
     "design-kit",
-    "components"
+    "components",
+    "ios",
+    "ipados",
+    "tvos",
+    "watchos",
+    "visionos",
+    "muninndb"
   ],
   "skills": [
     "./skills/start/bama",
@@ -32,7 +38,7 @@
     "./skills/plan/clone",
     "./skills/start/app-brief",
     "./skills/plan/user-stories",
-    "./skills/start/new-mac-app",
+    "./skills/start/new-app",
     "./skills/code/swift-swiftui",
     "./skills/code/os-integrations",
     "./skills/code/performance",
@@ -40,13 +46,32 @@
     "./skills/code/agent-cli",
     "./skills/design/ux-design",
     "./skills/design/mac-design",
+    "./skills/design/platform-design",
     "./skills/design/design-system",
     "./skills/design/layout-grid",
     "./skills/design/design-kit",
     "./skills/design/design-from-app",
     "./skills/design/app-icon",
     "./skills/ship/build-and-verify",
-    "./skills/ship/test-mac-app",
+    "./skills/ship/test-app",
     "./skills/ship/improve-loop"
-  ]
+  ],
+  "userConfig": {
+    "records": {
+      "type": "string",
+      "title": "Where BAMA keeps knowledge",
+      "description": "markdown: research, brief, fix log, and decisions as files in docs/. muninn: those go to MuninnDB through its MCP tools; the backlog and screen index stay files.",
+      "options": [
+        "markdown",
+        "muninn"
+      ],
+      "default": "markdown"
+    },
+    "muninn_vault": {
+      "type": "string",
+      "title": "MuninnDB vault",
+      "description": "The MuninnDB vault BAMA writes to when records is muninn.",
+      "default": "default"
+    }
+  }
 }

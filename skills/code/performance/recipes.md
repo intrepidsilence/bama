@@ -10,6 +10,7 @@ bugs in shipped apps.
 - Drawing: let the GPU composite
 - Images
 - Lists and SwiftUI updates
+- SwiftData
 - Background work with Swift concurrency
 - Timers, polling, and energy
 - Measuring
@@ -23,7 +24,7 @@ bugs in shipped apps.
   busy after a screen recording. Fix: `AudioServicesPlaySystemSound` with a
   sound ID made once, called off the main thread.
 - Accessibility calls (`AXUIElementCopyAttributeValue`) wait for the other
-  app to answer. A stuck app stalls you. Fix:
+  app to answer. A stuck app stalls the caller. Fix:
   `AXUIElementSetMessagingTimeout(AXUIElementCreateSystemWide(), 1.0)` once
   at launch, and never call AX in a loop on the main thread.
 - File, network, and database reads in `body` or `onAppear`. Fix: load in a
@@ -32,8 +33,9 @@ bugs in shipped apps.
 Find the frozen call:
 
 ```bash
-sample <AppName> 5 -file /tmp/<AppName>-sample.txt   # 5 s of stacks
-grep -A30 "Thread_.*main" /tmp/<AppName>-sample.txt | head -60
+mkdir -p .work/traces
+sample <AppName> 5 -file .work/traces/<AppName>-sample.txt   # 5 s of stacks
+grep -A30 "Thread_.*main" .work/traces/<AppName>-sample.txt | head -60
 ```
 
 ## Show first, work after
@@ -90,7 +92,7 @@ the new row, save in the background, offer Undo.
 
 ## Images
 
-- Thumbnails: decode at the size you show with ImageIO, not with a full
+- Thumbnails: decode at the size shown on screen with ImageIO, not with a full
   `NSImage`:
 
   ```swift
@@ -119,7 +121,7 @@ the new row, save in the background, offer Undo.
 - Large lists: `LazyVStack` loads rows on demand, and a plain `VStack`
   builds every row. A `List` with `Section`s can also build every row on a
   page switch (306 of 333 rows in one measurement). Count row `body` calls
-  before you trust it.
+  before trusting it.
 
 ## SwiftData
 
@@ -129,20 +131,20 @@ the new row, save in the background, offer Undo.
   fetch of every object.
 - A `body` that reads thousands of model properties pays observation
   tracking for each one. Map to plain structs for big lists.
-- `persistentModelID` changes on the first save. Select and look up by your
-  own `uid: UUID` property.
+- `persistentModelID` changes on the first save. Select and look up by the
+  model's own `uid: UUID` property.
 
 ## Background work with Swift concurrency
 
 The template uses main-actor default isolation: everything runs on the main
-actor unless you say otherwise.
+actor unless the code says otherwise.
 
 - Heavy pure work: a `nonisolated` function marked `@concurrent` runs on the
   shared pool. Await it from the view or model.
 - Shared mutable state used off the main thread: an `actor`.
 - `Task.detached` only when the work must not inherit the caller's actor or
   priority.
-- Hand results back to the main actor before you touch UI state.
+- Hand results back to the main actor before touching UI state.
 
 ## Timers, polling, and energy
 
@@ -159,28 +161,31 @@ actor unless you say otherwise.
 
 ## Measuring
 
+The commands below are for the Mac. For a simulator or a device, see
+[platforms.md](platforms.md).
+
 Measure the release build. Debug builds are 3 to 10 times slower in
 Swift and lie about where the time goes.
 
 ```bash
 # CPU: where time goes
 xcrun xctrace record --template 'Time Profiler' --attach <AppName> \
-  --time-limit 10s --output /tmp/<AppName>.trace
+  --time-limit 10s --output .work/traces/<AppName>.trace
 # Hangs on the main thread
 xcrun xctrace record --template 'Hangs' --attach <AppName> --time-limit 20s \
-  --output /tmp/<AppName>-hangs.trace
+  --output .work/traces/<AppName>-hangs.trace
 # Memory
 footprint <AppName>
 leaks <AppName>
 ```
 
 Open the `.trace` in Instruments, or export a table:
-`xcrun xctrace export --input /tmp/<AppName>.trace --toc`.
+`xcrun xctrace export --input .work/traces/<AppName>.trace --toc`.
 
-Add signposts around the work you want to time, so traces show it by name:
+Add signposts around the work to time, so traces show it by name:
 
 ```swift
-let signposter = OSSignposter(subsystem: "com.you.app", category: "capture")
+let signposter = OSSignposter(subsystem: "com.example.app", category: "capture")
 let state = signposter.beginInterval("freeze")
 // ...
 signposter.endInterval("freeze", state)
@@ -188,7 +193,7 @@ signposter.endInterval("freeze", state)
 
 ### First frame from a script
 
-"Feels slow" is a number once you log three times for an action: blocked
+"Feels slow" is a number once the app logs three times for an action: blocked
 (how long the call took), visible (window on screen), and frame (the first
 frame committed). In the app, after the action:
 
@@ -209,9 +214,9 @@ quick tap never flashes), measure from the end of that wait.
 ### Traces as text
 
 ```bash
-xcrun xctrace export --input /tmp/App.trace --toc
-xcrun xctrace export --input /tmp/App.trace \
-  --xpath '/trace-toc/run[@number="1"]/data/table[@schema="time-profile"]' > /tmp/profile.xml
+xcrun xctrace export --input .work/traces/App.trace --toc
+xcrun xctrace export --input .work/traces/App.trace \
+  --xpath '/trace-toc/run[@number="1"]/data/table[@schema="time-profile"]' > .work/traces/profile.xml
 ```
 
 The XML refers to repeated frames by `ref` id. A short script that resolves
@@ -235,6 +240,6 @@ environment, secrets included.
 ### Probe commands
 
 For an agent, the quickest loop is a probe command in the debug bridge
-(see the `test-mac-app` skill): it runs the action, logs how long each
+(`bama:test-app`): it runs the action, logs how long each
 step took, and writes the numbers to `status.json`. Then compare before
 and after a change.

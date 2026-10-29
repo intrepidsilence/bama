@@ -1,0 +1,14 @@
+  __APP_NAME__-tvOS:
+    type: application
+    platform: tvOS
+    sources:
+      - path: Shared
+    dependencies:
+      - package: __APP_NAME__Kit
+    settings:
+      base:
+        PRODUCT_NAME: __APP_NAME__
+        PRODUCT_BUNDLE_IDENTIFIER: __BUNDLE_ID__
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+    scheme: {}

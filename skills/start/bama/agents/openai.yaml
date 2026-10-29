@@ -1,5 +1,5 @@
 interface:
-  display_name: "Build Any Mac App"
-  short_description: "Pick the next step for a Mac app"
+  display_name: "Build Any Apple App"
+  short_description: "Pick the next step for an Apple app"
 policy:
   allow_implicit_invocation: false

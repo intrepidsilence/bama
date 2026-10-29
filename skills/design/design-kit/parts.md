@@ -1,27 +1,37 @@
 # Kit parts in SwiftUI
 
-Code for each step of [SKILL.md](SKILL.md). It compiles on macOS 26 with
-Swift 6.2 and main-actor default isolation (the `new-mac-app` template).
-Rename `Kit` types freely; keep the layers.
+Code for each step of [SKILL.md](SKILL.md). The blocks below, joined into
+one file with a `Platform` helper, type-check with Swift 6 and main-actor
+default isolation (the `bama:new-app` templates) against the macOS, iOS,
+tvOS, watchOS, and visionOS 26 SDKs. Rename `Kit` types freely; keep the
+layers.
+
+`Platform.value(mac:phone:pad:tv:watch:vision:)` comes from the
+multi-platform template (`Shared/UI/Platform.swift`), which also has its
+own `Color(light:dark:)` in `Shared/UI/Theme.swift`: keep one of the two. A Mac-only app replaces each call with its `mac:`
+value.
 
 ## Contents
 
 - Tokens
 - Type
-- Part states
+- Part states, hover, and focus
 - Buttons
 - Checkbox as a Toggle
 - Fields
-- Sidebar rows with keyboard navigation
+- Sidebar rows
 - List rows
 - Icons
-- Window chrome
+- Window chrome (macOS)
 - Gallery
 
 ## Tokens
 
 ```swift
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // Layer 1: raw colors. Only this file reads Palette.
 enum Palette {
@@ -41,11 +51,16 @@ enum Ink {
     static let selection = Color(light: Palette.blue100, dark: Palette.blue600.opacity(0.25))
 }
 
-// Layer 3: scales.
+// Layer 3: scales. Every size that differs per platform goes through Platform.value.
 enum Metric {
-    static let rowHeight: CGFloat = 28
-    static let rowInset: CGFloat = 8
-    static let radius: CGFloat = 6
+    /// Row and button height: the platform's default control size (HIG Accessibility).
+    static let rowHeight: CGFloat = Platform.value(mac: 28, phone: 44, pad: 44, tv: 66, watch: 44, vision: 60)
+    static let rowInset: CGFloat = Platform.value(mac: 8, phone: 16, pad: 16, tv: 24, watch: 8, vision: 16)
+    static let radius: CGFloat = Platform.value(mac: 6, phone: 10, pad: 10, tv: 12, watch: 10, vision: 12)
+    /// How much a focused part grows. Only tvOS grows; its containers leave room for it.
+    static let focusScale: CGFloat = Platform.value(mac: 1, phone: 1, pad: 1, tv: 1.08, watch: 1, vision: 1)
+    /// Room around a part for the focus growth and its shadow.
+    static let focusRoom: CGFloat = Platform.value(mac: 0, phone: 0, pad: 0, tv: 24, watch: 0, vision: 0)
 }
 
 enum Motion {
@@ -59,14 +74,25 @@ extension Color {
                   green: Double((hex >> 8) & 0xFF) / 255, blue: Double(hex & 0xFF) / 255)
     }
 
-    /// A color that follows light and dark mode.
+    /// A color that follows light and dark mode. watchOS is always dark.
     init(light: Color, dark: Color) {
+        #if os(macOS)
         self.init(nsColor: NSColor(name: nil) { appearance in
             appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? NSColor(dark) : NSColor(light)
         })
+        #elseif os(watchOS)
+        self = dark
+        #else
+        self.init(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
+        })
+        #endif
     }
 }
 ```
+
+The hit sizes (`rowHeight`) are Apple's default control sizes. The insets,
+radii, and focus numbers are starting values: tune them in `design/KIT.md`.
 
 ## Type
 
@@ -74,12 +100,13 @@ extension Color {
 enum KitType {
     case title, body, label, labelStrong, meta
 
+    /// Text styles scale per platform and with Dynamic Type on their own.
     var font: Font {
         switch self {
-        case .title: .system(size: 22, weight: .bold)
-        case .body, .label: .system(size: 13)
-        case .labelStrong: .system(size: 13, weight: .semibold)
-        case .meta: .system(size: 11)
+        case .title: .title.bold()
+        case .body, .label: .body
+        case .labelStrong: .body.weight(.semibold)
+        case .meta: .caption
         }
     }
 }
@@ -89,12 +116,15 @@ extension View {
 }
 ```
 
-A bundled font: `.custom("Inter-Medium", size: 13, relativeTo: .body)`.
+A measured or bundled size keeps scaling with Dynamic Type when it names a
+text style: `Font.custom("Inter-Medium", size: Metric.bodySize, relativeTo: .body)`,
+with `bodySize` one `Platform.value` in `Metric`. A bare
+`.system(size:)` stays fixed.
 
-## Part states
+## Part states, hover, and focus
 
-Every part computes one state. The gallery forces it, so hover and pressed
-show up in a snapshot.
+Every part computes one state. The gallery forces it, so hover, pressed,
+and focused show up in a snapshot.
 
 ```swift
 enum PartState: String, CaseIterable {
@@ -104,11 +134,44 @@ enum PartState: String, CaseIterable {
 extension EnvironmentValues {
     @Entry var forcedPartState: PartState?
 }
+
+extension View {
+    /// Pointer hover, where the platform has a pointer. tvOS and watchOS have none.
+    func kitHover(_ hovering: Binding<Bool>) -> some View {
+        #if os(macOS) || os(iOS) || os(visionOS)
+        onHover { hovering.wrappedValue = $0 }
+        #else
+        self
+        #endif
+    }
+
+    /// The system highlight for an iPad pointer and for gaze on visionOS.
+    func kitHoverEffect() -> some View {
+        #if os(iOS) || os(visionOS)
+        hoverEffect(.highlight)
+        #else
+        self
+        #endif
+    }
+}
 ```
+
+Per platform:
+
+- **macOS, iPadOS with a keyboard**: focused draws the kit's ring. Add
+  `.focusEffectDisabled()` at the root so the system ring does not draw
+  over it.
+- **tvOS**: focused grows by `Metric.focusScale` and casts a shadow. The
+  part keeps `Metric.focusRoom` free on every side: no `.clipped()` or
+  `.clipShape` around it, and `.scrollClipDisabled()` on the scroll view
+  that holds it.
+- **visionOS**: the app never learns where people look. `.kitHoverEffect()`
+  lets the system draw the highlight.
 
 ## Buttons
 
-A real `Button` with a `ButtonStyle`: keyboard, focus, and VoiceOver work.
+A real `Button` with a `ButtonStyle`: the keyboard, focus, the remote, and
+VoiceOver work.
 
 ```swift
 struct KitButtonStyle: ButtonStyle {
@@ -141,31 +204,31 @@ private struct KitButtonBody: View {
         let shape = RoundedRectangle(cornerRadius: Metric.radius, style: .continuous)
         configuration.label
             .kitType(.labelStrong)
-            .padding(.horizontal, 12)
-            .frame(height: Metric.rowHeight)
+            .padding(.horizontal, Metric.rowInset)
+            .frame(minHeight: Metric.rowHeight)
             .foregroundStyle(kind == .primary ? AnyShapeStyle(.white) : AnyShapeStyle(Ink.text))
             .background(shape.fill(fill))
-            .overlay(shape.strokeBorder(Ink.accent, lineWidth: state == .focused ? 2 : 0))
-            .opacity(state == .disabled ? 0.4 : 1)
-            .scaleEffect(state == .pressed ? 0.98 : 1)
-            .animation(Motion.press, value: state)
-            .onHover { hovering = $0 }
+            .overlay(shape.strokeBorder(Ink.accent, lineWidth: state == .focused && Metric.focusScale == 1 ? 2 : 0))
             .contentShape(shape)
+            .kitHoverEffect()
+            .opacity(state == .disabled ? 0.4 : 1)
+            .scaleEffect(state == .pressed ? 0.98 : state == .focused ? Metric.focusScale : 1)
+            .shadow(color: .black.opacity(state == .focused && Metric.focusScale > 1 ? 0.35 : 0), radius: 12, y: 8)
+            .animation(Motion.press, value: state)
+            .kitHover($hovering)
     }
 
     private var fill: Color {
         switch kind {
         case .primary: Ink.accent.opacity(state == .hover ? 0.9 : state == .pressed ? 0.8 : 1)
-        case .secondary: Ink.selection.opacity(state == .hover || state == .pressed ? 1 : 0.6)
-        case .ghost: state == .hover || state == .pressed ? Ink.selection : .clear
+        case .secondary: Ink.selection.opacity(state == .hover || state == .pressed || state == .focused ? 1 : 0.6)
+        case .ghost: state == .hover || state == .pressed || state == .focused ? Ink.selection : .clear
         }
     }
 }
 ```
 
-Use it: `Button("Add Task", action: add).buttonStyle(.kit())`. Add
-`.focusEffectDisabled()` at the root so the system ring does not draw
-over the kit's own focus ring.
+Use it: `Button("Add Task", action: add).buttonStyle(.kit())`.
 
 ## Checkbox as a Toggle
 
@@ -180,10 +243,10 @@ struct RoundCheckboxStyle: ToggleStyle {
                     Circle().strokeBorder(Ink.text.opacity(0.4), lineWidth: 1)
                     if configuration.isOn {
                         Circle().fill(Ink.accent)
-                        Image(systemName: "checkmark").font(.system(size: 8, weight: .bold)).foregroundStyle(.white)
+                        Image(systemName: "checkmark").font(.caption2.bold()).foregroundStyle(.white)
                     }
                 }
-                .frame(width: 16, height: 16)
+                .frame(width: Metric.rowHeight * 0.55, height: Metric.rowHeight * 0.55)
                 configuration.label
             }
         }
@@ -196,7 +259,8 @@ struct RoundCheckboxStyle: ToggleStyle {
 ## Fields
 
 `TextFieldStyle` cannot be written outside Apple's code, so style a plain
-field with a modifier.
+field with a modifier. On tvOS and watchOS a text field opens the system's
+own entry screen; the kit styles only the field's resting look.
 
 ```swift
 struct KitField: ViewModifier {
@@ -207,8 +271,8 @@ struct KitField: ViewModifier {
             .textFieldStyle(.plain)
             .kitType(.body)
             .focused($focused)
-            .padding(.horizontal, 8)
-            .frame(height: Metric.rowHeight)
+            .padding(.horizontal, Metric.rowInset)
+            .frame(minHeight: Metric.rowHeight)
             .background(RoundedRectangle(cornerRadius: Metric.radius).fill(Ink.selection.opacity(0.4)))
             .overlay(RoundedRectangle(cornerRadius: Metric.radius)
                 .strokeBorder(focused ? Ink.accent : .clear, lineWidth: 1.5))
@@ -218,12 +282,21 @@ struct KitField: ViewModifier {
 
 Use it: `TextField("Task name", text: $name).modifier(KitField())`.
 
-## Sidebar rows with keyboard navigation
+## Sidebar rows
 
-A custom sidebar replaces `List`, so it must add back what `List` gave:
-arrow keys and selection for VoiceOver.
+`KitRowStyle` styles a row on every platform. Where the rows live differs:
+
+- **macOS**: a custom sidebar replaces `List`, so it adds back what `List`
+  gave: arrow keys and selection for VoiceOver (`KitSidebar` below).
+- **iOS, iPadOS, visionOS**: keep `NavigationSplitView` with
+  `List(selection:)` and style the rows; the system keeps swipe back,
+  pointer, and gaze.
+- **tvOS**: the rows are buttons in a `VStack` or `List`; the focus engine
+  moves between them. Wrap the column in `.focusSection()` and decide
+  where focus enters it (call the Skill tool with `bama:platform-design`).
 
 ```swift
+#if os(macOS)
 struct KitSidebar: View {
     let items: [String]
     @Binding var selection: String
@@ -248,6 +321,7 @@ struct KitSidebar: View {
         }
     }
 }
+#endif
 
 struct KitRowStyle: ButtonStyle {
     var isSelected: Bool
@@ -261,29 +335,36 @@ struct KitRowStyle: ButtonStyle {
         let isSelected: Bool
         @Environment(\.forcedPartState) private var forced
         @Environment(\.isEnabled) private var isEnabled
+        @Environment(\.isFocused) private var isFocused
         @State private var hovering = false
 
         var body: some View {
-            let state = forced ?? (!isEnabled ? .disabled : isSelected ? .selected
-                : configuration.isPressed ? .pressed : hovering ? .hover : .rest)
+            let state = forced ?? (!isEnabled ? .disabled : isFocused && Metric.focusScale > 1 ? .focused
+                : isSelected ? .selected : configuration.isPressed ? .pressed : hovering ? .hover : .rest)
             let shape = RoundedRectangle(cornerRadius: Metric.radius)
             configuration.label
                 .kitType(.label)
                 .foregroundStyle(state == .selected ? Ink.accent : Ink.text)
                 .padding(.horizontal, Metric.rowInset)
                 .frame(maxWidth: .infinity, minHeight: Metric.rowHeight, alignment: .leading)
-                .background(shape.fill(state == .selected ? Ink.selection
+                .background(shape.fill(state == .selected || state == .focused ? Ink.selection
                     : state == .hover || state == .pressed ? Ink.selection.opacity(0.5) : .clear))
-                .overlay(shape.strokeBorder(Ink.accent, lineWidth: state == .focused ? 2 : 0))
-                .opacity(state == .disabled ? 0.4 : 1)
+                .overlay(shape.strokeBorder(Ink.accent, lineWidth: state == .focused && Metric.focusScale == 1 ? 2 : 0))
                 .contentShape(.rect)
-                .onHover { hovering = $0 }
-                .animation(Motion.hover, value: hovering)
+                .kitHoverEffect()
+                .opacity(state == .disabled ? 0.4 : 1)
+                .scaleEffect(state == .focused ? Metric.focusScale : 1)
+                .shadow(color: .black.opacity(state == .focused && Metric.focusScale > 1 ? 0.35 : 0), radius: 12, y: 8)
+                .kitHover($hovering)
+                .animation(Motion.hover, value: state)
                 .padding(.horizontal, Metric.rowInset)
         }
     }
 }
 ```
+
+The trailing `.padding` is the row's room: on tvOS the focused row grows
+into it, so keep `Metric.rowInset` at least `Metric.focusRoom` there.
 
 ## List rows
 
@@ -309,7 +390,7 @@ struct KitListRow: View {
 ## Icons
 
 Views name a `KitIcon`. The set maps each name to an SF Symbol or to a
-drawn shape, in one place.
+drawn shape, in one place. The size is one value per platform.
 
 ```swift
 enum KitIcon {
@@ -327,13 +408,13 @@ enum KitIcon {
 
 struct KitIconView: View {
     let icon: KitIcon
-    var size: CGFloat = 14
+    var size: CGFloat = Platform.value(mac: 14, phone: 20, pad: 20, tv: 32, watch: 18, vision: 20)
     var filled = false
 
     var body: some View {
         Group {
             if case .custom(let glyph) = icon {
-                glyph.stroke(style: StrokeStyle(lineWidth: 1.25, lineCap: .round, lineJoin: .round))
+                glyph.stroke(style: StrokeStyle(lineWidth: size / 11, lineCap: .round, lineJoin: .round))
             } else if let name = icon.symbol {
                 Image(systemName: filled ? name + ".fill" : name).font(.system(size: size, weight: .light))
             }
@@ -342,9 +423,10 @@ struct KitIconView: View {
     }
 }
 
-/// An icon of your own: an SVG path from a 24 x 24 box, scaled to any size.
+/// An icon of the app's own: an SVG path from a 24 x 24 box, scaled to any size.
 /// This one is a tray: copy the numbers from the SVG's `d` attribute.
-struct KitGlyph: Shape {
+/// `nonisolated`: Shape's methods run off the main actor.
+nonisolated struct KitGlyph: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.move(to: CGPoint(x: 3, y: 13))
@@ -360,15 +442,17 @@ struct KitGlyph: Shape {
 ```
 
 Use `.custom(KitGlyph())` for a drawn icon. A set of drawn icons is one
-`Shape` per icon, all on the same 24 x 24 box and stroke weight.
+`Shape` per icon, all on the same 24 x 24 box, with the stroke scaled to
+the size.
 
-## Window chrome
+## Window chrome (macOS)
 
 Hide the title bar, keep the traffic lights, and move them where the kit
 wants them. SwiftUI has no API for the position, so this reaches the
-`NSWindow`.
+`NSWindow`. Other platforms keep the system bars.
 
 ```swift
+#if os(macOS)
 struct WindowChrome: NSViewRepresentable {
     var firstButtonCenter = CGPoint(x: 20, y: 20)
     var buttonSpacing: CGFloat = 20
@@ -409,9 +493,10 @@ struct WindowChrome: NSViewRepresentable {
         }
     }
 }
+#endif
 ```
 
-In the App:
+In the Mac App:
 
 ```swift
 Window("Tasks", id: "main") {
@@ -432,33 +517,40 @@ window that cannot resize grays out the green button.
 ## Gallery
 
 Every part in every state, light and dark. Show it instead of the app
-when `APP_KIT_GALLERY=1`, then use the normal snapshot command.
+when `APP_KIT_GALLERY=1`, then snapshot each target with
+`APP_KIT_GALLERY=1 tools/snap.sh --platform <id>` after
+`./build.sh --platform <id>`. The gallery scrolls both
+ways, so a phone or a watch can show the wide state grid, and it never
+clips, so the tvOS focused column shows its full growth.
 
 ```swift
 struct KitGallery: View {
     static let enabled = ProcessInfo.processInfo.environment["APP_KIT_GALLERY"] == "1"
     @State private var done = false
     @State private var name = ""
+    private let gap: CGFloat = Platform.value(mac: 24, phone: 16, pad: 24, tv: 48, watch: 8, vision: 24)
 
     var body: some View {
-        ScrollView {
-            Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 16) {
-                GridRow {
-                    Text("")
-                    ForEach(PartState.allCases, id: \.self) { Text($0.rawValue).kitType(.meta) }
+        ScrollView([.vertical, .horizontal]) {
+            VStack(alignment: .leading, spacing: gap) {
+                Grid(alignment: .leading, horizontalSpacing: gap, verticalSpacing: gap) {
+                    GridRow {
+                        Text("")
+                        ForEach(PartState.allCases, id: \.self) { Text($0.rawValue).kitType(.meta) }
+                    }
+                    row("Primary") { Button("Add Task") {}.buttonStyle(.kit()) }
+                    row("Secondary") { Button("Plan Week") {}.buttonStyle(.kit(.secondary)) }
+                    row("Ghost") { Button("Cancel") {}.buttonStyle(.kit(.ghost)) }
+                    row("Row") { Button("Inbox") {}.buttonStyle(KitRowStyle(isSelected: false)).frame(width: Metric.rowHeight * 6) }
                 }
-                row("Primary") { Button("Add Task") {}.buttonStyle(.kit()) }
-                row("Secondary") { Button("Plan Week") {}.buttonStyle(.kit(.secondary)) }
-                row("Ghost") { Button("Cancel") {}.buttonStyle(.kit(.ghost)) }
-                row("Sidebar row") { Button("Inbox") {}.buttonStyle(KitRowStyle(isSelected: false)).frame(width: 160) }
-            }
-            .padding(24)
-            GroupBox("Controls") {
+                Text("Controls").kitType(.labelStrong)
                 KitListRow(title: "Write the launch post", done: $done)
                 TextField("Task name", text: $name).modifier(KitField())
             }
-            .padding(24)
+            // Room for tvOS focus growth on every side, inside the scroll content.
+            .padding(gap + Metric.focusRoom)
         }
+        .scrollClipDisabled()
     }
 
     private func row(_ name: String, @ViewBuilder part: @escaping () -> some View) -> some View {

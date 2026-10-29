@@ -1,14 +1,40 @@
 #!/bin/zsh
 # Checks an app's agent CLI against the agent-cli rules, on a test database.
-# Usage: check-agent-cli.sh <cli>        the CLI name or a path to the app binary
+# Usage: check-agent-cli.sh <cli> [project-root]
+#   <cli>           the CLI name or a path to the app binary
+#   project-root    the app's repo; default: the git root of the current folder,
+#                   else the nearest folder above it with a build.sh
 #   check-agent-cli.sh tasks
-#   check-agent-cli.sh ~/Applications/Tasks.app/Contents/MacOS/Tasks
-# Starts a test copy of the app (APP_STORE in /tmp), never the real one, and
-# quits it at the end. Prints PASS or FAIL lines, and exits 1 on any FAIL.
+#   check-agent-cli.sh ~/Applications/Tasks.app/Contents/MacOS/Tasks ~/Developer/Tasks
+# Starts a test copy of the app on <root>/.work/check.store, with its socket in
+# <root>/.work/sock/, never the real one, and quits it at the end. Prints PASS
+# or FAIL lines, and exits 1 on any FAIL.
 set -uo pipefail
-cli=${1:?usage: check-agent-cli.sh <cli>}
-export APP_STORE="/tmp/agent-cli-check-$$.store"
-export APP_AGENT_SOCKET="$APP_STORE.sock"
+cli=${1:?usage: check-agent-cli.sh <cli> [project-root]}
+
+root=${2:-}
+if [[ -z "$root" ]]; then
+  root=$(git rev-parse --show-toplevel 2>/dev/null)
+fi
+if [[ -z "$root" ]]; then
+  dir=$PWD
+  while [[ "$dir" != "/" && ! -f "$dir/build.sh" ]]; do dir=${dir:h}; done
+  [[ -f "$dir/build.sh" ]] && root=$dir
+fi
+[[ -n "$root" && -d "$root" ]] || { echo "FAIL could not find the project root: pass it as the second argument"; exit 1; }
+root=${root:A}
+
+mkdir -p "$root/.work/sock"
+export APP_STORE="$root/.work/check.store"
+export APP_AGENT_SOCKET="$root/.work/sock/check.sock"
+# A Unix socket path holds at most 103 bytes plus the end byte.
+if (( $(printf '%s' "$APP_AGENT_SOCKET" | wc -c) > 103 )); then
+  echo "FAIL socket path is over 103 bytes: $APP_AGENT_SOCKET"
+  echo "     move the project to a shorter path"
+  exit 1
+fi
+rm -f "$APP_STORE"(N) "$APP_STORE"-*(N) "$APP_AGENT_SOCKET"(N)
+
 fails=0
 pass() { echo "PASS $1"; }
 fail() { echo "FAIL $1"; fails=$((fails + 1)); }
@@ -61,7 +87,7 @@ for t in tools:
 # Quit the test copy only: the process that owns the test socket.
 pid=$(lsof -t "$APP_AGENT_SOCKET" 2>/dev/null | head -1)
 [[ -n "$pid" ]] && kill "$pid" 2>/dev/null
-rm -f "$APP_STORE"* 2>/dev/null
+rm -f "$APP_STORE"(N) "$APP_STORE"-*(N) "$APP_AGENT_SOCKET"(N)
 
 [[ $fails == 0 ]] && { echo "PASS agent CLI"; exit 0; }
 echo "FAIL agent CLI: $fails checks"; exit 1

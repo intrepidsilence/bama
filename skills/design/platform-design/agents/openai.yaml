@@ -1,0 +1,3 @@
+interface:
+  display_name: "Platform Design"
+  short_description: "Native design rules for iOS, iPadOS, tvOS, watchOS, and visionOS"

@@ -26,7 +26,7 @@ measurements on Apple silicon.
 - Pixels stay on the GPU. `CVPixelBuffer` and `IOSurface` pass between
   AVFoundation, VideoToolbox, Core Image, and Metal without a copy.
 - Every new fast path gets an on-off switch (environment variable or
-  default), so you can compare and fall back.
+  default), so a run can compare and fall back.
 - Prove the output is the same: hashes, `ffmpeg -f framemd5`, or VMAF.
 
 ## Zero-copy GPU input
@@ -68,8 +68,8 @@ gpuQueue.async { encode(pixelBuffer) }   // the completion handler clears busy
 **Symptom:** frames dropped when the writer is not ready.
 **Fix:** a FIFO per track, drained on the writer queue, retried every 3 ms
 while `isReadyForMoreMediaData` is false. Copy frames past the first two
-into your own pool so capture gets its buffers back. Cap the queue (90
-frames is about 3 seconds) and count when you hit the cap. When the queue
+into the app's own pool so capture gets its buffers back. Cap the queue (90
+frames is about 3 seconds) and count each time it hits the cap. When the queue
 empties, call `CVPixelBufferPoolFlush(pool, .excessBuffers)` at most once
 a second, or memory stays hundreds of MB higher after a stall.
 
@@ -96,7 +96,7 @@ are pixel-identical.
 
 **Symptom:** play starts 0.6 to 1.9 s late with `AVPlayer` and a custom
 compositor, worse with more tracks.
-**Fix:** your own player. The clock is host time
+**Fix:** the app's own player. The clock is host time
 (`frame = anchor + (now - anchorHost) * fps * rate`). Audio
 (`AVAudioEngine`) starts at the anchor's host time. Keep 3 frames in flight
 on the GPU and 6 ready ahead. Present from a `CADisplayLink`.
@@ -114,7 +114,7 @@ on the GPU and 6 ready ahead. Present from a `CADisplayLink`.
 - `kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality`: HEVC
   went from 108 to 182 fps at the same quality score.
 - Two parallel encode sessions gave 1.04x. Three gave 0.77x. Measure
-  before you parallelize the encoder.
+  before parallelizing the encoder.
 - Write to a network volume through a local file: write locally, copy to
   `.partial`, check the size, rename.
 
@@ -132,8 +132,8 @@ on the GPU and 6 ready ahead. Present from a `CADisplayLink`.
 ## SwiftUI next to a media engine
 
 - A per-frame value on a model that 74 views observe cost 36 to 39 ms per
-  frame. Move it to its own small object (see the `improve-architecture`
-  skill, architecture.md).
+  frame. Move it to its own small object (`bama:improve-architecture`,
+  architecture.md).
 - Scopes and meters: set `CALayer.contents` inside one `CATransaction`.
   Keep static parts as constant views. Refresh text at 2 Hz.
 - Never build a publisher inside `body` and pass it to `.onReceive`. It
@@ -142,9 +142,9 @@ on the GPU and 6 ready ahead. Present from a `CADisplayLink`.
 ## AVFoundation lifetimes
 
 - Keep every `AVURLAsset` that went into an `AVMutableComposition` alive,
-  or you get errors -11800 and -12780.
+  or AVFoundation returns errors -11800 and -12780.
 - Image generators call back on the main queue. Never block the main queue
-  with a semaphore while you wait for them.
+  with a semaphore while waiting for them.
 - `CARenderer` needs `CATransaction.flush()` and draws y-up.
 
 ## Measuring media work

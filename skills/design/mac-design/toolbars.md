@@ -26,7 +26,7 @@ Placement changed between 26.0 and 26.2: snapshot the toolbar after each OS upda
 
 - At most three groups in the whole toolbar. Only frequent commands get an item.
 - Every toolbar item also has a menu bar command and shortcut. People can hide the toolbar.
-- The system adds the overflow menu. Never build your own to make items fit.
+- The system adds the overflow menu. Never build a custom one to make items fit.
 - No Settings button. Settings opens from the app menu with Command-comma.
 - An app people keep open for hours, or with many items, lets people customize
   the toolbar: `.toolbar(id:)` with `ToolbarItem(id:)`. Leading items stay fixed.
@@ -44,7 +44,7 @@ Placement changed between 26.0 and 26.2: snapshot the toolbar after each OS upda
 In a `NavigationSplitView` the toolbar splits at the column dividers. An item
 sits over the column whose view declares it.
 
-- Sidebar column: no items of your own. The system puts the sidebar toggle there.
+- Sidebar column: no items of the app's own. The system puts the sidebar toggle there.
 - Content column: title, subtitle, and actions that make or order rows (New,
   Sort). `.primaryAction` puts them at the column's trailing edge.
 - Detail column: actions on the selection (Share, Flag, Delete). Plain
@@ -137,7 +137,7 @@ button, tint as decoration, or an `HStack` drawn in place of `.toolbar`.
 
 ## Example
 
-Typechecked against the macOS 26.5 SDK. `Library` is your `@Observable` model.
+Typechecked against the macOS 26.5 SDK. `Library` is the app's `@Observable` model.
 The scene adds `.commands { SidebarCommands(); InspectorCommands(); ToolbarCommands() }`
 plus New Note (Command-N) and Flag (Shift-Command-L) menu commands.
 
@@ -148,7 +148,7 @@ struct ContentView: View {
     var body: some View {
         @Bindable var library = library
         NavigationSplitView {
-            FolderList()  // no items of your own: the system adds the sidebar toggle
+            FolderList()  // no app items here: the system adds the sidebar toggle
         } content: {
             NoteList()
                 .navigationTitle(library.folderName)
