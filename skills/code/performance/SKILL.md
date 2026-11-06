@@ -55,7 +55,7 @@ reproduce -> measure (release build) -> find the line -> fix -> measure again ->
    | Symptom | Tool |
    | --- | --- |
    | App freezes, spinning pointer | `sample <App> 5`, then read the main thread stack |
-   | Slow action | Time Profiler: `xcrun xctrace record --template 'Time Profiler' --attach <App> --time-limit 10s --output .work/traces/<App>.trace` |
+   | Slow action | Time Profiler: `xcrun xctrace record --template 'Time Profiler' --attach <App> --time-limit 10s --output work/traces/<App>.trace` |
    | Short freezes while typing or dragging | `--template 'Hangs'` |
    | Stutter while moving or animating | `--template 'Animation Hitches'` |
    | Memory grows | `footprint <App>`, `leaks <App>`, `--template 'Allocations'` |
@@ -64,7 +64,7 @@ reproduce -> measure (release build) -> find the line -> fix -> measure again ->
    On a simulator or device, the same templates run with `--device <udid>`
    ([platforms.md](platforms.md)).
 
-   Traces go in `.work/traces/`. Read them as text, not in the Instruments
+   Traces go in `work/traces/`. Read them as text, not in the Instruments
    GUI: see "Measuring" in [recipes.md](recipes.md). Delete every `.trace`
    after reading. A trace stores the app's full environment, and an app
    opened from an agent's shell inherits that shell's tokens. Never commit
@@ -81,7 +81,7 @@ reproduce -> measure (release build) -> find the line -> fix -> measure again ->
    Check: the entry names the symptom, the cause, and the rule.
 
 Recording stops when the measurement ends: no `xctrace`, `log stream`, or
-test copy of the app stays running, and `.work/traces/` is empty.
+test copy of the app stays running, and `work/traces/` is empty.
 
 ## The rules that fix most problems
 

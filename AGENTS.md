@@ -24,7 +24,7 @@ keep them identical.
 ## Conventions
 
 [CONVENTIONS.md](../CONVENTIONS.md) is the contract every skill follows:
-voice ("Claude", never "you" or "I"), platform ids, the `.work/` folder
+voice ("Claude", never "you" or "I"), platform ids, the `work/` folder
 (never `/tmp`), `tools/footprint.sh`, project simulators, what may stay
 running, git, the `records` setting (Markdown or MuninnDB), and skill names
 (`bama:<name>`). A skill links to it instead of repeating it. A change to

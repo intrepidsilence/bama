@@ -10,7 +10,7 @@
 #        ./build.sh --debug               debug build
 #        ./build.sh --open                then open the app: the Mac app, or the
 #                                         simulator with the app launched (left running)
-# Logs: .work/logs/build-<platform>.log
+# Logs: work/logs/build-<platform>.log
 setopt pipefail
 set -u
 source "${0:A:h}/tools/lib.sh"

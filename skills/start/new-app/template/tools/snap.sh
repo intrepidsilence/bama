@@ -2,7 +2,7 @@
 # Snapshots of every page in light and dark, with seed data, on a fresh test store.
 # Usage: tools/snap.sh [--platform macos] [--open]
 #        APP_SNAPSHOT_PAGES=all,settings tools/snap.sh
-# Writes .work/shots/macos/<page>-<light|dark>.png and -layout.json, then quits the
+# Writes work/shots/macos/<page>-<light|dark>.png and -layout.json, then quits the
 # test copy. --open opens the installed app afterwards.
 set -u
 root=${0:A:h:h}
@@ -17,9 +17,9 @@ while (( $# )); do
 done
 app=~/Applications/__APP_NAME__.app/Contents/MacOS/__APP_NAME__
 [[ -x $app ]] || { echo "no app at $app: run ./build.sh first"; exit 1; }
-store=$root/.work/test.store
-shots=$root/.work/shots/macos
-mkdir -p $root/.work
+store=$root/work/test.store
+shots=$root/work/shots/macos
+mkdir -p $root/work
 # A crashed run leaves saved window state, and the next launch would wait on a "reopen windows?" alert.
 rm -rf ~/Library/Saved\ Application\ State/__BUNDLE_ID__.savedState
 # Seed data only fills an empty store, so start from nothing.

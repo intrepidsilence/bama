@@ -6,8 +6,8 @@
 #                   else the nearest folder above it with a build.sh
 #   check-agent-cli.sh tasks
 #   check-agent-cli.sh ~/Applications/Tasks.app/Contents/MacOS/Tasks ~/Developer/Tasks
-# Starts a test copy of the app on <root>/.work/check.store, with its socket in
-# <root>/.work/sock/, never the real one, and quits it at the end. Prints PASS
+# Starts a test copy of the app on <root>/work/check.store, with its socket in
+# <root>/work/sock/, never the real one, and quits it at the end. Prints PASS
 # or FAIL lines, and exits 1 on any FAIL.
 set -uo pipefail
 cli=${1:?usage: check-agent-cli.sh <cli> [project-root]}
@@ -24,9 +24,9 @@ fi
 [[ -n "$root" && -d "$root" ]] || { echo "FAIL could not find the project root: pass it as the second argument"; exit 1; }
 root=${root:A}
 
-mkdir -p "$root/.work/sock"
-export APP_STORE="$root/.work/check.store"
-export APP_AGENT_SOCKET="$root/.work/sock/check.sock"
+mkdir -p "$root/work/sock"
+export APP_STORE="$root/work/check.store"
+export APP_AGENT_SOCKET="$root/work/sock/check.sock"
 # A Unix socket path holds at most 103 bytes plus the end byte.
 if (( $(printf '%s' "$APP_AGENT_SOCKET" | wc -c) > 103 )); then
   echo "FAIL socket path is over 103 bytes: $APP_AGENT_SOCKET"

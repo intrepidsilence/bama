@@ -159,7 +159,7 @@ Claude refactors only the candidate the user picked (or the unattended
 - **Before:** record the proof: tests at the interface, golden outputs
   (file bytes or hashes, old files that must still load), snapshot PNGs on
   every target the files compile into (`tools/snap.sh --platform <id>`,
-  copied to `.work/compare/before/<platform>/`), and a performance baseline
+  copied to `work/compare/before/<platform>/`), and a performance baseline
   where speed matters.
 - One refactor per commit. Behavior stays the same. No features mixed in.
 - New types go in new files that compile first. Then move callers over.
@@ -184,7 +184,7 @@ lines when it gives them, and never pushes.
 
 **After:** the same tests pass, golden outputs match, and the snapshots on
 every target match the "before" set (`magick compare -metric AE -fuzz 8%`
-into `.work/compare/`, zero changed pixels on static pages).
+into `work/compare/`, zero changed pixels on static pages).
 
 Done with this step when every step is committed and the proof gives the
 same results before and after on every target.

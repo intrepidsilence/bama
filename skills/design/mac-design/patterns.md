@@ -533,7 +533,7 @@ allowed". Show the status in Settings and open
 Implement the delegate's `didReceive` as `nonisolated`, call the
 completion handler right away, and hop to the main actor for the work.
 Skip notifications, login items, and anything else with a system prompt
-when `APP_STORE` is set (a test store in `.work/`), so tests never
+when `APP_STORE` is set (a test store in `work/`), so tests never
 trigger a prompt.
 
 ### A floating capture panel without a title bar

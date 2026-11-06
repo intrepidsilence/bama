@@ -102,7 +102,7 @@ How to check, before calling the screen done:
 2. Focus the FIRST and the LAST control of every row and every column.
    Edges are where it clips. Move with the remote keys below.
 3. Take a full-resolution screenshot of each:
-   `xcrun simctl io "$udid" screenshot .work/shots/tvos/focus-<row>-<first|last>.png`.
+   `xcrun simctl io "$udid" screenshot work/shots/tvos/focus-<row>-<first|last>.png`.
 4. Zoom on the focused control's four edges, cropping around it:
    `sips -c <height> <width> --cropOffset <y> <x> <in>.png --out <in>-edge.png`,
    then open the crop with the Read tool.

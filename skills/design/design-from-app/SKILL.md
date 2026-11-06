@@ -81,7 +81,7 @@ In short:
 | Selection pill, dividers | `vline` and `hline` through it, `--tolerance 4` |
 | Text and icon colors | `ink shot.png x y w h` |
 | Surface colors | `palette shot.png x y w h` |
-| A close look | `crop shot.png x y w h .work/compare/<name>.png 4` |
+| A close look | `crop shot.png x y w h work/compare/<name>.png 4` |
 
 Check: every token and every part size in `design/KIT.md` has a number
 from a command, in points.
@@ -119,15 +119,15 @@ same window or screen size (the matching simulator device for iOS, iPadOS,
 tvOS, watchOS, and visionOS).
 
 Check: a snapshot of that screen (`./build.sh --platform <id>`, then
-`tools/snap.sh --platform <id>`; PNGs in `.work/shots/<id>/`) has the same size in pixels as the reference.
+`tools/snap.sh --platform <id>`; PNGs in `work/shots/<id>/`) has the same size in pixels as the reference.
 
 ## 6. Compare until it matches
 
 ```bash
 swift "${CLAUDE_SKILL_DIR}/scripts/compare.swift" <ref> \
-  .work/shots/<id>/<page>-light.png .work/compare/main --scale <n>
+  work/shots/<id>/<page>-light.png work/compare/main --scale <n>
 swift "${CLAUDE_SKILL_DIR}/scripts/compare.swift" <ref> \
-  .work/shots/<id>/<page>-light.png .work/compare/sidebar 0 0 220 300 --scale <n>
+  work/shots/<id>/<page>-light.png work/compare/sidebar 0 0 220 300 --scale <n>
 ```
 
 Open `side-by-side.png` and `diff.png` with the Read tool. Then measure

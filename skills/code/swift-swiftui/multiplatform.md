@@ -130,7 +130,7 @@ public enum StoreLocation {
 ```
 
 Create the parent folder before opening the store. Scripts set `APP_STORE`
-to a path in `.work/` on the Mac. In a simulator, Claude passes it with
+to a path in `work/` on the Mac. In a simulator, Claude passes it with
 `SIMCTL_CHILD_APP_STORE=<path>` before `xcrun simctl launch`, and points it
 inside the app's own container (`xcrun simctl get_app_container <udid>
 <bundle-id> data`).

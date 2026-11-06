@@ -36,7 +36,7 @@ If the app is closed, the command opens it in the background.
 - Destructive commands (<delete, send>) only report what they would do.
   Show the user that report and ask before running it again with `--yes`.
 - To try something without real data, put
-  `mkdir -p <repo>/.work/sock <repo>/.work/tmp && APP_STORE=<repo>/.work/tmp/try.store APP_AGENT_SOCKET=<repo>/.work/sock/try.sock`
+  `mkdir -p <repo>/work/sock <repo>/work/tmp && APP_STORE=<repo>/work/tmp/try.store APP_AGENT_SOCKET=<repo>/work/sock/try.sock`
   in front of the command.
 
 ## Main commands

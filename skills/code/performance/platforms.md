@@ -31,7 +31,7 @@ A simulator app is a Mac process. So `sample`, `footprint`, and `leaks`
 work on it by pid, but they report Mac numbers. Claude labels every number
 with where it came from: "simulator on an M2 Mac" or "iPhone 15, release".
 
-Claude uses only the project's own simulators (`.work/simulators`,
+Claude uses only the project's own simulators (`work/simulators`,
 CONVENTIONS section 5). A device is the user's: Claude asks before
 installing or launching on one.
 
@@ -39,7 +39,7 @@ installing or launching on one.
 
 ```bash
 xcrun xctrace list devices                         # devices and simulators, with UDIDs
-udid=$(awk '$1=="ios"{print $2}' .work/simulators)  # the project's iOS simulator
+udid=$(awk '$1=="ios"{print $2}' work/simulators)  # the project's iOS simulator
 
 # Launch the release build on the simulator and get its pid
 xcrun simctl launch "$udid" <bundle-id>            # prints "<bundle-id>: <pid>"
@@ -54,9 +54,9 @@ Build the Release configuration for the measurement:
 ## Record a trace
 
 ```bash
-mkdir -p .work/traces
+mkdir -p work/traces
 xcrun xctrace record --device "$udid" --template 'Time Profiler' \
-  --attach <pid> --time-limit 10s --output .work/traces/<App>-<platform>.trace
+  --attach <pid> --time-limit 10s --output work/traces/<App>-<platform>.trace
 ```
 
 - The same templates as the Mac: `'Time Profiler'`, `'Hangs'`,
@@ -75,7 +75,7 @@ template.
 ```bash
 # Simulator: stream the app's log while reproducing. Stop it right after.
 xcrun simctl spawn "$udid" log stream --level debug \
-  --predicate 'subsystem == "<bundle-id>"' > .work/traces/<App>-log.txt &
+  --predicate 'subsystem == "<bundle-id>"' > work/traces/<App>-log.txt &
 log_pid=$!
 # ... reproduce ...
 kill $log_pid

@@ -7,7 +7,7 @@ allowed-tools: Bash(./build.sh*) Bash(swift *) Bash(tools/*) Bash(xcrun simctl *
 # Build and verify
 
 Claude follows [CONVENTIONS.md](../../../CONVENTIONS.md): the platform ids
-(section 2), the `.work/` folder (3), the footprint (4), project simulators
+(section 2), the `work/` folder (3), the footprint (4), project simulators
 (5), and what may stay running (6).
 
 A change is done when four things are true, on every target platform the
@@ -54,8 +54,8 @@ Claude created it:
 - XcodeGen project: run `xcodegen generate` (a new file is not in the
   project until then), then build again.
 
-Each build writes its log to `.work/logs/build-<platform>.log`, and records
-the app it built in `.work/built-<platform>`. A build whose log has not
+Each build writes its log to `work/logs/build-<platform>.log`, and records
+the app it built in `work/built-<platform>`. A build whose log has not
 grown for 5 minutes is stuck, not slow. Claude stops it, says so, and reads
 the last lines of that log before trying again.
 
@@ -71,16 +71,16 @@ page and mode, and quits.
 ```bash
 tools/snap.sh                       # macOS
 tools/snap.sh --platform ios        # in the bama-<App>-ios simulator, then shuts it down
-# SNAPSHOT <project>/.work/shots/ios/all-light.png
+# SNAPSHOT <project>/work/shots/ios/all-light.png
 # ...
-# [n/n] 100% snapshots in <project>/.work/shots/
+# [n/n] 100% snapshots in <project>/work/shots/
 ```
 
 The Mac-only template ends with `SNAPSHOT done <folder>`. The
 multi-platform template ends with `[n/n] 100% snapshots in <folder>`, or
 `[n/n] 100% FAILED: <platforms>` when a platform failed.
 
-Images land in `.work/shots/<platform>/<page>-<light|dark>.png`. The
+Images land in `work/shots/<platform>/<page>-<light|dark>.png`. The
 Mac-only template also writes a `-layout.json` grid probe beside each. The
 script deletes the old test store
 (with its `-wal` and `-shm` files) and, on macOS, the saved window state
@@ -93,7 +93,7 @@ Mac; an app adds its own. On a simulator, `tools/snap.sh` reads the list
 itself and launches the app once per page with
 `SIMCTL_CHILD_APP_SNAPSHOT_PAGE=<page>`.
 
-The app runs only against `APP_STORE` in `.work/`. Snapshots never touch the
+The app runs only against `APP_STORE` in `work/`. Snapshots never touch the
 user's real data in `~/Library/Application Support/<App>/` or a device's
 real data.
 
@@ -138,11 +138,11 @@ nobody else uses the screen, and does not "fix" dim text seen only there.
 ### Simulator capture problems
 
 - `tools/snap.sh --platform <id>` creates `bama-<App>-<id>` on first use
-  and records it in `.work/simulators`. Claude never points it at another
+  and records it in `work/simulators`. Claude never points it at another
   simulator: other sessions and people use them.
 - With XcodeBuildMCP in the session, its `screenshot` and `snapshot_ui`
   tools are fine for one extra look. Claude passes the UDID from
-  `.work/simulators`.
+  `work/simulators`.
 - A simulator that sits on the boot screen for 2 minutes is stuck. Claude
   stops the run, runs `xcrun simctl shutdown <udid>` on the project
   simulator only, and starts again.
@@ -151,7 +151,7 @@ nobody else uses the screen, and does not "fix" dim text seen only there.
 
 ```bash
 tools/grid-lint.sh                                             # every app
-swift tools/check-layout.swift .work/shots/macos/*-layout.json # Mac-only template
+swift tools/check-layout.swift work/shots/macos/*-layout.json # Mac-only template
 ```
 
 Both print PASS. The multi-platform template writes no layout probes, so

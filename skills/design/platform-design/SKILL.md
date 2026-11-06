@@ -21,7 +21,7 @@ The Mac has its own skill: call the Skill tool with `bama:mac-design`.
 - Apple's current text on one topic, when a rule here is not enough:
   `"${CLAUDE_SKILL_DIR}/../mac-design/scripts/hig.sh" <topic>` (for example
   `focus-and-selection`, `ornaments`, `digital-crown`). Pages cache in the
-  project's `.work/hig/`. Leave off `--mac`: that flag drops the other
+  project's `work/hig/`. Leave off `--mac`: that flag drops the other
   platforms' sections.
 - Tokens: call the Skill tool with `bama:design-system`. Names, flow, and
   where a feature opens: `bama:ux-design`. Spacing and the grid checks:
@@ -166,7 +166,7 @@ was checked, on which screen, and how.
 Snapshot every page of every target in light and dark:
 
 ```bash
-tools/snap.sh --platform ios       # .work/shots/ios/<page>-light.png, -dark.png
+tools/snap.sh --platform ios       # work/shots/ios/<page>-light.png, -dark.png
 tools/snap.sh --platform tvos      # one run per target in the brief
 ```
 
@@ -175,16 +175,16 @@ system bars, values that leaked from another platform (a TV-sized card on a
 phone), white badges, and empty bands under short content.
 
 The script uses the project's own simulator for that platform
-(`.work/simulators`) and shuts it down after, unless `--open`. Focus and
+(`work/simulators`) and shuts it down after, unless `--open`. Focus and
 hover checks need the app running on that simulator, so they use `--open`
 or XcodeBuildMCP pointed at the same UDID:
 
 ```bash
-udid=$(awk '$1=="tvos"{print $2}' .work/simulators)
+udid=$(awk '$1=="tvos"{print $2}' work/simulators)
 ```
 
 Check: every target has a light and a dark PNG for every page in
-`.work/shots/<platform>/`, and each was opened and looked at.
+`work/shots/<platform>/`, and each was opened and looked at.
 
 ## References
 

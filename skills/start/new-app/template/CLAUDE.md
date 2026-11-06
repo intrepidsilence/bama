@@ -10,21 +10,21 @@ decides what it does.
 - `Sources/__APP_NAME__Kit/` rules and data logic with no SwiftUI. Tests in `Tests/__APP_NAME__KitTests/`.
 - `Package.swift` a Swift package. There is no Xcode project.
 - `build.sh` builds, signs, and installs `~/Applications/__APP_NAME__.app`.
-- `Icon/AppIcon.icon` the app icon, an Icon Composer file (JSON plus SVG layers). `build.sh` compiles it with `tools/make_icon.sh`; `tools/icon_review.sh` renders every look into `.work/icon/review.png`.
+- `Icon/AppIcon.icon` the app icon, an Icon Composer file (JSON plus SVG layers). `build.sh` compiles it with `tools/make_icon.sh`; `tools/icon_review.sh` renders every look into `work/icon/review.png`.
 - `docs/` the brief, the screen index, and the user stories, when they exist.
-- `.work/` everything temporary: snapshots, test stores, renders. It is in `.gitignore`. Nothing goes to `/tmp`.
+- `work/` everything temporary: snapshots, test stores, renders. It is in `.gitignore`. Nothing goes to `/tmp`.
 
 ## Build and check
 
 - Build and install: `./build.sh`. Add `--open` to restart the app with the new build. The build shows warnings; fix them.
 - Unit tests: `swift test --scratch-path ~/Library/Developer/__APP_NAME__/test-build`.
-- Self-test (the app's real functions on `.work/self.store`): `tools/selftest.sh`. Exit 0 when every check passes. Add a check for every story with logic in `SelfTest.swift`.
+- Self-test (the app's real functions on `work/self.store`): `tools/selftest.sh`. Exit 0 when every check passes. Add a check for every story with logic in `SelfTest.swift`.
 - After every UI change, take snapshots with sample data and look at them: `tools/snap.sh`.
-  It writes `.work/shots/macos/<page>-light.png` and `-dark.png` for every sidebar page, and `settings-<tab>-light.png` and `-dark.png` for every Settings tab, then quits. `APP_SNAPSHOT_PAGES=all,settings tools/snap.sh` limits the pages.
+  It writes `work/shots/macos/<page>-light.png` and `-dark.png` for every sidebar page, and `settings-<tab>-light.png` and `-dark.png` for every Settings tab, then quits. `APP_SNAPSHOT_PAGES=all,settings tools/snap.sh` limits the pages.
   For a panel, sheet, or popover, add a capture to `Snapshot.swift` like the Settings loop.
-- Snapshots, seed data, and the self-test refuse to run unless `APP_STORE` is set to a test file outside the real data folder. The scripts use `.work/test.store` and `.work/self.store`.
+- Snapshots, seed data, and the self-test refuse to run unless `APP_STORE` is set to a test file outside the real data folder. The scripts use `work/test.store` and `work/self.store`.
 - Never test against the real database in `~/Library/Application Support/__APP_NAME__/`.
-- Then check the grid: `tools/grid-lint.sh` and `swift tools/check-layout.swift .work/shots/macos/*-layout.json`. Both print PASS.
+- Then check the grid: `tools/grid-lint.sh` and `swift tools/check-layout.swift work/shots/macos/*-layout.json`. Both print PASS.
 - A change is done when the build has no errors, the grid checks pass, and Claude looked at the light and dark snapshots.
 - Every script takes `--platform macos`, the only platform of this project, so commands match the multi-platform template.
 
@@ -34,7 +34,7 @@ Build products live in `~/Library/Developer/__APP_NAME__/` and the app in
 `~/Applications/__APP_NAME__.app`, so iCloud and Dropbox do not sync them.
 
 - `tools/footprint.sh` lists every place the project keeps files outside this folder, with sizes.
-- `tools/footprint.sh clean` removes them all, and `.work/`. It never removes the real data folder.
+- `tools/footprint.sh clean` removes them all, and `work/`. It never removes the real data folder.
 - Anything new a change creates outside the project gets a line in `tools/footprint.sh` in the same change.
 
 ## Design rules

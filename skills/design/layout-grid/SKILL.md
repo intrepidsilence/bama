@@ -16,7 +16,7 @@ What each template from `bama:new-app` ships:
 | The scale | `Sources/<App>/UI/Grid.swift`: `Space`, `.gridArea`, `.gridProbe`, the grid overlay | `Shared/UI/Grid.swift`: `Space` with a per-device `Space.margin` and `Space.focusRoom`, and `CardSize`; no probes, no overlay |
 | Per-platform values | none (one platform) | `Shared/UI/Platform.swift`: `Platform.value(mac:phone:pad:tv:watch:vision:)`, all six labels required, and `Platform.current` |
 | Check 1, lint | `tools/grid-lint.sh` (lints `Sources/`) | `tools/grid-lint.sh` (lints `Shared/`) |
-| Check 2, probes | `tools/check-layout.swift` on `.work/shots/macos/*-layout.json` | not shipped |
+| Check 2, probes | `tools/check-layout.swift` on `work/shots/macos/*-layout.json` | not shipped |
 | Check 3, overlay | `APP_GRID=1` on the app launched by hand | not shipped |
 
 Both lints skip `Theme.swift`, `Grid.swift`, and `Tokens.swift`, where the
@@ -87,7 +87,7 @@ room around focusable rows uses `Space.focusRoom`; both already carry the
 right value per device.
 
 Check: run `tools/snap.sh --platform <id>` for each target and open the
-PNGs in `.work/shots/<platform>/` with the Read tool. The margin matches
+PNGs in `work/shots/<platform>/` with the Read tool. The margin matches
 the table, and no focused or hovered control on tvOS or visionOS is cut
 off (the first-and-last checks in `bama:platform-design`).
 
@@ -127,11 +127,11 @@ it. Probes with the same `edge` (default `"lead"`) must share one leading
 edge. Pass `edge: nil` for views that sit side by side.
 
 Snapshot mode writes a `<page>-<light|dark>-layout.json` next to every
-PNG in `.work/shots/macos/`. Take the snapshots, then check them:
+PNG in `work/shots/macos/`. Take the snapshots, then check them:
 
 ```bash
 tools/snap.sh
-swift tools/check-layout.swift .work/shots/macos/*-layout.json
+swift tools/check-layout.swift work/shots/macos/*-layout.json
 # PASS today-light-layout.json: 12 probes in 2 areas
 # FAIL inbox-light-layout.json
 #   - edge page/lead has 2 leading edges: title 320, list 324
@@ -150,14 +150,14 @@ It checks that every probe:
 
 When a check fails and the cause is not clear, draw the grid over the
 pages. `tools/snap.sh` does not pass `APP_GRID` on, so launch the binary
-by hand with a test store and a snapshot folder in `.work/`:
+by hand with a test store and a snapshot folder in `work/`:
 
 ```bash
-APP_GRID=1 APP_STORE=.work/test.store APP_SNAPSHOT=.work/shots/grid \
+APP_GRID=1 APP_STORE=work/test.store APP_SNAPSHOT=work/shots/grid \
   ~/Applications/<App>.app/Contents/MacOS/<App>
 ```
 
-The PNGs in `.work/shots/grid/` show an 8 pt grid, each area in blue with
+The PNGs in `work/shots/grid/` show an 8 pt grid, each area in blue with
 its inset dashed, and each probe in pink with its name. Claude opens them
 with the Read tool.
 

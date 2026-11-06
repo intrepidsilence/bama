@@ -9,7 +9,7 @@ argument-hint: "[milestone, e.g. M1]"
 Records: `${user_config.records}` (vault `${user_config.muninn_vault}`). See [CONVENTIONS.md](../../../CONVENTIONS.md), section 8.
 
 Claude follows [CONVENTIONS.md](../../../CONVENTIONS.md) for platforms
-(section 2), `.work/` (3), the footprint (4), simulators (5), what may stay
+(section 2), `work/` (3), the footprint (4), simulators (5), what may stay
 running (6), and git (7).
 
 One pass through the loop takes one story from `todo` to `done`:
@@ -111,7 +111,7 @@ so pages show real content.
 **Watchdog.** A build or snapshot run prints a line at least every minute
 (`... still building ios, 3 min`). A step that prints nothing for 5 minutes,
 or runs longer than 15, is stuck: Claude stops it, says so in a progress
-line, reads the last lines of its log (`.work/logs/build-<platform>.log`,
+line, reads the last lines of its log (`work/logs/build-<platform>.log`,
 or the script's own output for a snapshot run), and treats it as a failed round
 (section 5).
 
@@ -149,7 +149,7 @@ acceptance lines and the platform's design skill instead.
 
 Snapshot only the pages a story touches (`APP_SNAPSHOT_PAGES`), and the
 full set on every target at the end of each milestone. Comparison images
-go in `.work/compare/`.
+go in `work/compare/`.
 
 Fix, rebuild, and compare again. Three rounds per story at most. If it still
 does not match, set the story to `todo` again with a note that says what is
@@ -165,7 +165,7 @@ git add Sources/Tasks/TaskList.swift Sources/Tasks/Commands.swift docs/STORIES.m
 git commit -m "Complete tasks with Command-Return"
 ```
 
-Claude never uses `git add -A` or `git add .`: they would pick up `.work/`
+Claude never uses `git add -A` or `git add .`: they would pick up `work/`
 leftovers and stray files. Before committing, `git status --short` shows
 nothing unexpected staged. Set the story to `done` in `docs/STORIES.md` and
 commit that with the code. When the session gives commit attribution

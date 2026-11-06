@@ -21,24 +21,24 @@ with `--platform <id>`.
 - `__APP_NAME__Kit/` a Swift package with rules and data logic and no SwiftUI, shared by every target, with Swift Testing tests.
 - `Icon/AppIcon.icon` the icon, an Icon Composer file. Xcode compiles it into the Mac, iPhone, iPad, and Watch apps. Apple TV and Vision Pro need layered icons in an asset catalog (`bama:app-icon`).
 - `docs/` the brief, the screen index, and the user stories, when they exist.
-- `.work/` everything temporary: snapshots, test stores, logs, the list of project simulators. It is in `.gitignore`. Nothing goes to `/tmp`.
+- `work/` everything temporary: snapshots, test stores, logs, the list of project simulators. It is in `.gitignore`. Nothing goes to `/tmp`.
 
 ## Build and check
 
 Every long step prints `[n/N] pct% stage` and stops with a `TIMEOUT` line if it hangs.
 
-- Build: `./build.sh` (every platform) or `./build.sh --platform tvos`. `--debug` for a debug build. Logs: `.work/logs/build-<platform>.log`. The build lists this project's warnings; fix them.
+- Build: `./build.sh` (every platform) or `./build.sh --platform tvos`. `--debug` for a debug build. Logs: `work/logs/build-<platform>.log`. The build lists this project's warnings; fix them.
   - `macos` installs `~/Applications/__APP_NAME__.app`.
-  - Other platforms install into the project simulator `bama-__APP_NAME__-<platform>`, created on first use and listed in `.work/simulators`.
+  - Other platforms install into the project simulator `bama-__APP_NAME__-<platform>`, created on first use and listed in `work/simulators`.
   - `--open` leaves the app open for the user: the Mac app, or the simulator with the app launched.
 - Unit tests: `swift test --package-path __APP_NAME__Kit --scratch-path ~/Library/Developer/__APP_NAME__/kit-build`.
-- Self-test (the app's real functions on `.work/self.store`): `tools/selftest.sh [--platform <id>]`. Exit 0 when every check passes on every platform. Add a check for every story with logic in `SelfTest.swift`.
+- Self-test (the app's real functions on `work/self.store`): `tools/selftest.sh [--platform <id>]`. Exit 0 when every check passes on every platform. Add a check for every story with logic in `SelfTest.swift`.
 - After every UI change, take snapshots with sample data and look at them: `tools/snap.sh [--platform <id>] [--open]`.
-  It writes `.work/shots/<platform>/<page>-light.png` and `-dark.png` for every page (`all`, `starred`, `detail`), plus `settings-*.png` on the Mac. `APP_SNAPSHOT_PAGES=all,detail tools/snap.sh` limits the pages.
+  It writes `work/shots/<platform>/<page>-light.png` and `-dark.png` for every page (`all`, `starred`, `detail`), plus `settings-*.png` on the Mac. `APP_SNAPSHOT_PAGES=all,detail tools/snap.sh` limits the pages.
   On a simulator it launches the app once per page (`APP_SNAPSHOT_PAGE=<page>`), waits for `SNAPSHOT ready`, and takes the screenshot with `xcrun simctl io`. Add a page in `Snapshot.swift`.
   Apple Watch is always dark, and Vision Pro draws its windows on glass, so their light and dark shots look alike.
 - Spacing: `tools/grid-lint.sh` prints PASS.
-- Snapshots, seed data, and the self-test refuse to run unless `APP_STORE` is set to a test file outside the real data folder. The scripts use `.work/test.store` and `.work/self.store`.
+- Snapshots, seed data, and the self-test refuse to run unless `APP_STORE` is set to a test file outside the real data folder. The scripts use `work/test.store` and `work/self.store`.
 - Never test against the real database (`Application Support/__APP_NAME__/`).
 - A change is done when every platform builds with no errors, the self-test passes, and Claude looked at the light and dark snapshots of every platform the change touches. A change in `Shared/` touches every platform.
 
@@ -46,12 +46,12 @@ Every long step prints `[n/N] pct% stage` and stops with a `TIMEOUT` line if it 
 
 - Claude uses only this project's simulators, `bama-__APP_NAME__-<platform>`. Other sessions share this Mac: never boot, shut down, or erase another simulator, and never `shutdown all`.
 - The scripts shut a simulator down when they finish, unless `--open` or it was already running.
-- XcodeBuildMCP tools are fine for taps and screenshots: point them at the UDID in `.work/simulators`.
+- XcodeBuildMCP tools are fine for taps and screenshots: point them at the UDID in `work/simulators`.
 
 ## Outside the project
 
 - `tools/footprint.sh` lists every place the project keeps files outside this folder (build products in `~/Library/Developer/__APP_NAME__/`, the Mac app, window state, the project simulators), with sizes.
-- `tools/footprint.sh clean` removes them all, and `.work/`. It never removes the real data.
+- `tools/footprint.sh clean` removes them all, and `work/`. It never removes the real data.
 - Anything new a change creates outside the project gets a line in `tools/footprint.sh` in the same change.
 
 ## Design rules

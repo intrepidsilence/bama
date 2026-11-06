@@ -6,12 +6,12 @@ import IOKit.pwr_mgt
 #endif
 
 /// Screenshot mode for agents. tools/snap.sh drives it on every platform and
-/// writes .work/shots/<platform>/<page>-<light|dark>.png.
+/// writes work/shots/<platform>/<page>-<light|dark>.png.
 ///
 /// The pages: every SidebarItem, plus "detail" (the first item opened).
 ///
 /// Mac: the app takes its own screenshots, then quits.
-///   APP_STORE=.work/test.store APP_SEED=1 APP_SNAPSHOT=.work/shots/macos ~/Applications/__APP_NAME__.app/Contents/MacOS/__APP_NAME__
+///   APP_STORE=work/test.store APP_SEED=1 APP_SNAPSHOT=work/shots/macos ~/Applications/__APP_NAME__.app/Contents/MacOS/__APP_NAME__
 ///   Also writes settings-light.png and settings-dark.png.
 ///   APP_SNAPSHOT_PAGES=all,settings limits the pages.
 ///

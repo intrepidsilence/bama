@@ -96,10 +96,10 @@ Check: the three PNGs exist and are 1024 x 1024 px
 ## Compile and check
 
 ```bash
-mkdir -p .work/icon/visionos
-xcrun actool "Icon/visionOS.xcassets" --compile .work/icon/visionos \
+mkdir -p work/icon/visionos
+xcrun actool "Icon/visionOS.xcassets" --compile work/icon/visionos \
   --platform xros --target-device vision --minimum-deployment-target 26.0 \
-  --app-icon AppIcon --output-partial-info-plist .work/icon/visionos/partial.plist \
+  --app-icon AppIcon --output-partial-info-plist work/icon/visionos/partial.plist \
   --output-format human-readable-text --warnings --notices 2>&1 | grep -E 'error:|warning:'
 ```
 
@@ -114,7 +114,7 @@ Check: no `error:` or `warning:` lines.
 ## Look at it
 
 `ictool` does not render visionOS. Read a flat preview of the layers
-(`swift "$r" preview .work/icon/visionos-preview.png <back> <middle> <front>`)
+(`swift "$r" preview work/icon/visionos-preview.png <back> <middle> <front>`)
 for the glyph and colors, then the real icon on the visionOS project
 simulator's Home View (SKILL.md, step 7).
 

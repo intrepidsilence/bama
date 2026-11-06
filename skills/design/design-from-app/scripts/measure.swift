@@ -6,7 +6,7 @@
 // Vision Pro window captures 2. `info` prints the size at the scale given, so
 // run it with the right --scale and check the points against the device.
 // Output files (crop) go where the caller says; keep them in the project's
-// .work/compare/ folder.
+// work/compare/ folder.
 //
 //   swift measure.swift info   shot.png
 //   swift measure.swift color  shot.png x y [x y ...]       hex color at each point

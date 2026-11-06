@@ -105,7 +105,7 @@ chmod +x "$dest/build.sh" "$dest"/tools/*.sh
 cd "$dest"
 [[ -d .git ]] || git init -q
 # Stage by name: the template's files, and docs/ when the brief is already there.
-# Never git add -A, so stray files and .work/ stay out.
+# Never git add -A, so stray files and work/ stay out.
 [[ -d docs ]] && created+=(docs)
 git add -- $created
 if [[ $kind == mac ]]; then

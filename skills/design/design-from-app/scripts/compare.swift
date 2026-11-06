@@ -1,7 +1,7 @@
 #!/usr/bin/env swift
 // Compares a rebuild with its reference screenshot.
 //   swift compare.swift reference.png build.png out-folder [x y w h] [--scale 2]
-// out-folder is normally .work/compare/<name> in the project.
+// out-folder is normally work/compare/<name> in the project.
 // Writes side-by-side.png, diff.png (red where pixels differ), and overlay.png
 // (the build at 50% over the reference), and prints how many pixels differ.
 // An optional x y w h (points) compares one region, so one part can be fixed at

@@ -24,7 +24,7 @@ Swift and SwiftUI. Local data. No Xcode GUI.
 
 > **This is a fork** of [daveebbelaar/bama](https://github.com/daveebbelaar/bama).
 > It adds every Apple platform (iOS, iPadOS, tvOS, watchOS, visionOS), a
-> per-project `.work/` folder instead of `/tmp`, a `tools/footprint.sh` that
+> per-project `work/` folder instead of `/tmp`, a `tools/footprint.sh` that
 > lists and cleans everything a project keeps outside its folder, a `records`
 > setting that sends research, decisions, and the fix log to MuninnDB instead
 > of Markdown files, and safer git (no `git add -A`, no push, the backlog loop

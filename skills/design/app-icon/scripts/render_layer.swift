@@ -2,7 +2,7 @@
 // Renders icon layers for the platforms that take image stacks (tvOS, visionOS)
 // from the same SVG art as the Icon Composer file, and joins layers into a flat
 // preview. Every path is given by the caller: layers go into the asset catalog,
-// previews into the project's .work/icon/ folder.
+// previews into the project's work/icon/ folder.
 //
 //   swift render_layer.swift layer   in.svg out.png width height [--fit 0.6]
 //       the SVG drawn centered, aspect kept, at --fit of the shorter side

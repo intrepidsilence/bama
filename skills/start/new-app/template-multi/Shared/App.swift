@@ -13,7 +13,7 @@ import AppKit
 //   APP_APPEARANCE=light|dark   other devices: force light or dark (tools/snap.sh)
 //   APP_ACCENT=<id>             run with another accent from Theme.all (UI/Theme.swift)
 // Snapshots, seed data, and the self-test need APP_STORE set to a test file
-// (the scripts use .work/ in the project), never the real data folder.
+// (the scripts use work/ in the project), never the real data folder.
 
 @main
 struct __APP_NAME__App: App {

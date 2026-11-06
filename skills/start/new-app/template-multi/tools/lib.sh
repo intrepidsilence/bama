@@ -2,12 +2,12 @@
 #   source "${0:A:h}/tools/lib.sh"      (build.sh)
 #   source "${0:A:h}/lib.sh"            (tools/*.sh)
 # Platform ids: macos ios ipados tvos watchos visionos. This project's list is
-# in tools/platforms. Everything temporary goes to .work/, never /tmp.
+# in tools/platforms. Everything temporary goes to work/, never /tmp.
 
 root=${${(%):-%x}:A:h:h}
 name="__APP_NAME__"
 bundle="__BUNDLE_ID__"
-work=$root/.work
+work=$root/work
 # Build products stay outside the project, so iCloud or Dropbox never sync them.
 dd=$HOME/Library/Developer/$name/DerivedData
 all_ids=(macos ios ipados tvos watchos visionos)
@@ -91,7 +91,7 @@ sdk_for() {
 
 bundle_for() { [[ $1 == watchos ]] && print $bundle.watchkitapp || print $bundle }
 
-# The app build.sh built last for <id>, recorded in .work/built-<id>.
+# The app build.sh built last for <id>, recorded in work/built-<id>.
 built_app() {
   local app
   [[ -f $work/built-$1 ]] && app=$(<$work/built-$1)
@@ -116,7 +116,7 @@ generate_project() {
 
 # --- Simulators -------------------------------------------------------------
 # The project's own simulators are named bama-<App>-<platform> and recorded in
-# .work/simulators ("<platform> <udid>" per line). Scripts never boot, shut
+# work/simulators ("<platform> <udid>" per line). Scripts never boot, shut
 # down, or erase any other simulator: other sessions share this Mac.
 
 device_types_for() {
@@ -149,7 +149,7 @@ project_sim() {
   [[ -f $work/simulators ]] && udid=$(awk -v p=$id '$1 == p { u = $2 } END { print u }' $work/simulators)
   [[ -n $udid && $(sim_field $udid name) == $simname ]] || udid=""
   if [[ -z $udid ]]; then
-    # One left from an earlier run whose .work/ was removed.
+    # One left from an earlier run whose work/ was removed.
     udid=$(xcrun simctl list devices -j | jq -r --arg n $simname \
       '[.devices[][] | select(.name == $n and .isAvailable)] | first | .udid // empty')
   fi

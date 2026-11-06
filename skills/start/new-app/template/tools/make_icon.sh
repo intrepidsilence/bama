@@ -7,8 +7,8 @@ set -euo pipefail
 here=${0:A:h}
 repo=${here:h}
 icon="$repo/Icon/AppIcon.icon"
-mkdir -p "$repo/.work/tmp"
-work=$(mktemp -d -p "$repo/.work/tmp")
+mkdir -p "$repo/work/tmp"
+work=$(mktemp -d -p "$repo/work/tmp")
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$repo/Resources"
 

@@ -31,8 +31,8 @@ tinted, and clear looks. Claude never draws those.
   and `Resources/AppIcon.icns` (Mac template). In the multi-platform
   template Xcode compiles it for each target.
 - `tools/icon_review.sh` renders it with `ictool` (Icon Composer's command
-  line tool, inside Xcode) into one contact sheet: `.work/icon/review.png`
-  in the Mac template, `.work/icon/review-<platform>.png` in the
+  line tool, inside Xcode) into one contact sheet: `work/icon/review.png`
+  in the Mac template, `work/icon/review-<platform>.png` in the
   multi-platform template, which takes `--platform macos|ios|ipados|watchos`.
 - In the multi-platform template, `project.yml` lists `Icon/AppIcon.icon`
   as a source of the macOS, iOS, iPadOS, and watchOS targets, with
@@ -149,7 +149,7 @@ Icon/AppIcon.icon/
 4. Review every look:
 
    ```bash
-   tools/icon_review.sh                    # Mac template: wrote .work/icon/review.png
+   tools/icon_review.sh                    # Mac template: wrote work/icon/review.png
    tools/icon_review.sh --platform <id>    # multi-platform: once per macos, ios, ipados, watchos target
    ```
 
@@ -190,13 +190,13 @@ Icon/AppIcon.icon/
      ```bash
      ./build.sh --platform <id>                  # builds and installs; snap.sh never builds
      tools/snap.sh --platform <id> --open        # leaves the simulator up with the app
-     udid=$(awk '$1 == "<id>" { print $2 }' .work/simulators)
+     udid=$(awk '$1 == "<id>" { print $2 }' work/simulators)
      xcrun simctl terminate "$udid" <bundle-id>  # back to the Home screen
-     xcrun simctl io "$udid" screenshot .work/icon/home-<id>.png
+     xcrun simctl io "$udid" screenshot work/icon/home-<id>.png
      xcrun simctl shutdown "$udid"               # unless the user wants it left open
      ```
 
-     Use only the project's own simulator from `.work/simulators`. A new
+     Use only the project's own simulator from `work/simulators`. A new
      app may land on a later Home screen page or in the App Library; the
      icon review sheet stays the main check where the simulator cannot
      show it. Shut the simulator down when done, unless the user wants it

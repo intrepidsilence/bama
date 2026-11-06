@@ -109,14 +109,14 @@ Check: `<cli-name> --version` prints the app's version, and
 "${CLAUDE_SKILL_DIR}/scripts/check-agent-cli.sh" <cli-name> <app-folder>
 ```
 
-It starts a test copy of the app on `.work/check.store`, with its socket
-in `.work/sock/`, checks help, JSON output, error codes, every read
+It starts a test copy of the app on `work/check.store`, with its socket
+in `work/sock/`, checks help, JSON output, error codes, every read
 command, and the MCP tool list, then quits the test copy. Then Claude runs
 each write command once by hand on the same test database, from the app's
 folder. The CLI starts a new test copy, never the real app:
 
 ```bash
-APP_STORE="$PWD/.work/check.store" APP_AGENT_SOCKET="$PWD/.work/sock/check.sock" <cli-name> items add --title "Test" --json
+APP_STORE="$PWD/work/check.store" APP_AGENT_SOCKET="$PWD/work/sock/check.sock" <cli-name> items add --title "Test" --json
 ```
 
 and looks at the test window: the change shows without a reload. Claude

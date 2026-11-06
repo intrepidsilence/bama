@@ -4,7 +4,7 @@
 #   Default, Dark, TintedDark, ClearLight at 256 pt, then Default at 32 and 16 pt.
 # Usage: tools/icon_review.sh [--platform macos|ios|ipados|watchos] [out.png]
 #        default platform: the first of those in tools/platforms
-#        default out: .work/icon/review-<platform>.png
+#        default out: work/icon/review-<platform>.png
 # Xcode compiles the .icon into the Mac, iPhone, iPad, and Watch apps. Apple TV
 # and Vision Pro use layered icons in an asset catalog instead (bama:app-icon).
 setopt pipefail

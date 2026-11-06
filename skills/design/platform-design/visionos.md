@@ -69,7 +69,7 @@ as a focused card is cut off on tvOS.
 
 How to check: in the visionOS simulator the pointer stands in for the eyes.
 Hover the first and last control of every row and toolbar, take a
-screenshot (`xcrun simctl io "$udid" screenshot .work/shots/visionos/hover-<row>-<first|last>.png`),
+screenshot (`xcrun simctl io "$udid" screenshot work/shots/visionos/hover-<row>-<first|last>.png`),
 and crop around the control with `sips` as in [tvos.md](tvos.md#focused-items-grow).
 The highlight is whole on all four sides.
 

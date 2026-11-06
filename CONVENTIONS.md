@@ -43,28 +43,28 @@ names, flags, and folders:
 
 ## 3. The work folder
 
-Every BAMA project has a `.work/` folder at its root, listed in
+Every BAMA project has a `work/` folder at its root, listed in
 `.gitignore`. Everything temporary goes there. Claude never writes to `/tmp`
 or `/private/tmp`, and never sets `TMPDIR` to them.
 
 | Path | What |
 | --- | --- |
-| `.work/shots/<platform>/<page>-<light\|dark>.png` | snapshots, plus `-layout.json` grid probes |
-| `.work/test.store` | the snapshot run's test database (`APP_STORE`) |
-| `.work/self.store` | the self-test's test database |
-| `.work/check.store` | the agent CLI check's test database |
-| `.work/sock/` | Unix sockets for test runs (short names: socket paths must stay under 104 bytes) |
-| `.work/compare/` | pixel comparisons (`design-from-app`, `improve-loop`) |
-| `.work/traces/` | Instruments traces and `sample` output |
-| `.work/icon/` | icon renders for review |
-| `.work/hig/` | cached Human Interface Guidelines pages |
-| `.work/simulators` | the project's own simulators, one `<platform> <udid>` per line |
-| `.work/tmp/` | anything else; scripts use `mktemp -p "$root/.work/tmp"` |
+| `work/shots/<platform>/<page>-<light\|dark>.png` | snapshots, plus `-layout.json` grid probes |
+| `work/test.store` | the snapshot run's test database (`APP_STORE`) |
+| `work/self.store` | the self-test's test database |
+| `work/check.store` | the agent CLI check's test database |
+| `work/sock/` | Unix sockets for test runs (short names: socket paths must stay under 104 bytes) |
+| `work/compare/` | pixel comparisons (`design-from-app`, `improve-loop`) |
+| `work/traces/` | Instruments traces and `sample` output |
+| `work/icon/` | icon renders for review |
+| `work/hig/` | cached Human Interface Guidelines pages |
+| `work/simulators` | the project's own simulators, one `<platform> <udid>` per line |
+| `work/tmp/` | anything else; scripts use `mktemp -p "$root/work/tmp"` |
 
 - Test databases: the app refuses snapshot mode, seed data, and the
   self-test unless `APP_STORE` is set, and it never sets it to the real data
-  folder. Scripts always set it to a path in `.work/`.
-- `.work/` is disposable. `tools/footprint.sh clean` empties it.
+  folder. Scripts always set it to a path in `work/`.
+- `work/` is disposable. `tools/footprint.sh clean` empties it.
 
 ## 4. The footprint: everything outside the project
 
@@ -75,7 +75,7 @@ tracks them in one committed script, `tools/footprint.sh`:
 ```bash
 tools/footprint.sh          # list every location, whether it exists, and its size
 tools/footprint.sh clean    # remove build products, the installed app, saved window
-                            # state, the project's simulators, and .work/
+                            # state, the project's simulators, and work/
 ```
 
 It knows these locations (`<App>` and `<bundle-id>` filled in at scaffold
@@ -83,11 +83,11 @@ time):
 
 | Location | What | `clean` removes it |
 | --- | --- | --- |
-| `.work/` | temporary files | yes |
+| `work/` | temporary files | yes |
 | `~/Library/Developer/<App>/` | build products, test builds, DerivedData | yes |
 | `~/Applications/<App>.app` | installed Mac app | yes |
 | `~/Library/Saved Application State/<bundle-id>.savedState` | window state | yes |
-| simulators in `.work/simulators` | the project's own simulators and apps in them | yes (`xcrun simctl delete <udid>`) |
+| simulators in `work/simulators` | the project's own simulators and apps in them | yes (`xcrun simctl delete <udid>`) |
 | `~/Library/Application Support/<App>/` | **the user's real data** | never; listed only |
 | `~/Library/Preferences/<bundle-id>.plist` | the user's real settings (window frames, Settings choices) | never; listed only |
 | `~/.local/bin/<cli>` | the agent CLI link (`agent-cli`) | yes, only when it points into the project or its build |
@@ -101,7 +101,7 @@ of these exist after the run.
 
 - Claude uses only the project's own simulators: named
   `bama-<App>-<platform>`, created with `xcrun simctl create`, and recorded
-  in `.work/simulators`. The scripts create one on first use. Claude never
+  in `work/simulators`. The scripts create one on first use. Claude never
   boots, shuts down, or erases a simulator it did not create: other
   sessions and people share this Mac.
 - XcodeBuildMCP tools, when the session has them, are fine for build, run,
@@ -121,7 +121,7 @@ streams, Instruments recordings, computer use sessions.
 ## 7. Git
 
 - Claude stages named paths (`git add <paths>`), never `git add -A` or
-  `git add .`, so `.work/`, screenshots, and stray files stay out.
+  `git add .`, so `work/`, screenshots, and stray files stay out.
 - Claude never pushes, and never rewrites history.
 - `new-app` makes the first commit of the repo it just created.
 - `improve-loop` commits one story per commit. Starting the loop is the

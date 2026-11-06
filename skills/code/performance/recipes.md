@@ -33,9 +33,9 @@ bugs in shipped apps.
 Find the frozen call:
 
 ```bash
-mkdir -p .work/traces
-sample <AppName> 5 -file .work/traces/<AppName>-sample.txt   # 5 s of stacks
-grep -A30 "Thread_.*main" .work/traces/<AppName>-sample.txt | head -60
+mkdir -p work/traces
+sample <AppName> 5 -file work/traces/<AppName>-sample.txt   # 5 s of stacks
+grep -A30 "Thread_.*main" work/traces/<AppName>-sample.txt | head -60
 ```
 
 ## Show first, work after
@@ -170,17 +170,17 @@ Swift and lie about where the time goes.
 ```bash
 # CPU: where time goes
 xcrun xctrace record --template 'Time Profiler' --attach <AppName> \
-  --time-limit 10s --output .work/traces/<AppName>.trace
+  --time-limit 10s --output work/traces/<AppName>.trace
 # Hangs on the main thread
 xcrun xctrace record --template 'Hangs' --attach <AppName> --time-limit 20s \
-  --output .work/traces/<AppName>-hangs.trace
+  --output work/traces/<AppName>-hangs.trace
 # Memory
 footprint <AppName>
 leaks <AppName>
 ```
 
 Open the `.trace` in Instruments, or export a table:
-`xcrun xctrace export --input .work/traces/<AppName>.trace --toc`.
+`xcrun xctrace export --input work/traces/<AppName>.trace --toc`.
 
 Add signposts around the work to time, so traces show it by name:
 
@@ -214,9 +214,9 @@ quick tap never flashes), measure from the end of that wait.
 ### Traces as text
 
 ```bash
-xcrun xctrace export --input .work/traces/App.trace --toc
-xcrun xctrace export --input .work/traces/App.trace \
-  --xpath '/trace-toc/run[@number="1"]/data/table[@schema="time-profile"]' > .work/traces/profile.xml
+xcrun xctrace export --input work/traces/App.trace --toc
+xcrun xctrace export --input work/traces/App.trace \
+  --xpath '/trace-toc/run[@number="1"]/data/table[@schema="time-profile"]' > work/traces/profile.xml
 ```
 
 The XML refers to repeated frames by `ref` id. A short script that resolves

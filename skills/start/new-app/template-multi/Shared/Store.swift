@@ -27,7 +27,7 @@ enum Store {
     }
 
     /// Why a test run refuses to start.
-    static let testStoreRule = "APP_STORE must be set to a test file (like .work/test.store), outside the real data folder Application Support/__APP_NAME__/"
+    static let testStoreRule = "APP_STORE must be set to a test file (like work/test.store), outside the real data folder Application Support/__APP_NAME__/"
 
     static var url: URL {
         if let path = ProcessInfo.processInfo.environment["APP_STORE"], !path.isEmpty {

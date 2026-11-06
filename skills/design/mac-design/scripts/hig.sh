@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Prints one page of Apple's Human Interface Guidelines as plain text, for
-# agents. Pages are cached for 7 days in the project's .work/hig/ (listed in
+# agents. Pages are cached for 7 days in the project's work/hig/ (listed in
 # .gitignore, so the text, which is Apple's, never goes into the repo). The
 # project root is the git root, or the current folder outside a repo.
 #
@@ -9,7 +9,7 @@
 #        hig.sh --list           every topic name
 set -euo pipefail
 root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-cache="$root/.work/hig"
+cache="$root/work/hig"
 mkdir -p "$cache"
 base="https://developer.apple.com/tutorials/data/design/human-interface-guidelines"
 

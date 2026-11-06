@@ -84,7 +84,7 @@ in the content. Keep it off most controls. [HIG Branding]
 
 To compare colors, take snapshots with `APP_ACCENT=<id>` for two or three
 of them, on each target (`tools/snap.sh --platform <id>`), and show the
-user the PNGs from `.work/shots/<platform>/`.
+user the PNGs from `work/shots/<platform>/`.
 
 Check: on macOS `ThemeStore.defaultID` is "system"; on the other targets
 the default is the brand or blue; each target with a picker has it in the

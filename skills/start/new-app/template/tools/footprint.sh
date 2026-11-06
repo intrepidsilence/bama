@@ -3,7 +3,7 @@
 # Usage: tools/footprint.sh          list every location, whether it exists, and its size
 #        tools/footprint.sh clean    remove build products, the installed app, saved window
 #                                    state, the project's simulators, the agent CLI's
-#                                    ~/.local/bin link (when it points here), and .work/
+#                                    ~/.local/bin link (when it points here), and work/
 # Agent registrations of the CLI (~/.claude/skills, ~/.codex/skills, Claude Desktop) are listed only.
 # It never removes the real data in ~/Library/Application Support/__APP_NAME__/.
 # A skill that creates something new outside the project adds it here, in the same change.
@@ -11,7 +11,7 @@ set -u
 root=${0:A:h:h}
 name="__APP_NAME__"
 bundle="__BUNDLE_ID__"
-sims=$root/.work/simulators
+sims=$root/work/simulators
 # The agent CLI's command name. Empty until bama:agent-cli adds the CLI and sets it.
 cli=""
 cmd=${1:-list}
@@ -19,7 +19,7 @@ cmd=${1:-list}
 
 # path | what | cleanable (yes or never)
 locations=(
-  "$root/.work|temporary files (.work/)|yes"
+  "$root/work|temporary files (work/)|yes"
   "$HOME/Library/Developer/$name|build products, test builds, DerivedData|yes"
   "$HOME/Applications/$name.app|installed Mac app|yes"
   "$HOME/Library/Saved Application State/$bundle.savedState|window state|yes"
@@ -81,7 +81,7 @@ if [[ $cmd == list ]]; then
     printf '%-8s %-7s simulator bama-%s-%s %s  (clean: yes)\n' exists \
       "$(size $HOME/Library/Developer/CoreSimulator/Devices/$udid)" "$name" "${line%% *}" "$udid"
   done
-  (( found )) || printf '%-8s %-7s %s\n' absent - "project simulators (none in .work/simulators)"
+  (( found )) || printf '%-8s %-7s %s\n' absent - "project simulators (none in work/simulators)"
   if ours_link; then
     printf '%-8s %-7s %s -> %s  (agent CLI link; clean: yes)\n' exists - "$link" "${link:A}"
   elif [[ -n $cli && -L $link ]]; then
@@ -91,7 +91,7 @@ if [[ $cmd == list ]]; then
   exit 0
 fi
 
-# clean: simulators first, because their list lives in .work/.
+# clean: simulators first, because their list lives in work/.
 for line in "${(@f)$(project_sims)}"; do
   [[ -n $line ]] || continue
   udid=${line#* }

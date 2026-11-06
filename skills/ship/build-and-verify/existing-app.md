@@ -25,7 +25,7 @@ none of these. Claude maps each piece first, then follows the skills.
 | `./build.sh --platform <id>` | `xcodebuild -scheme <App> -destination 'platform=<Simulator>,id=<udid>' -derivedDataPath ~/Library/Developer/<App>/DerivedData build`, then `xcrun simctl install <udid> <path to .app>` |
 | `--platform <id> --open` | `xcrun simctl launch <udid> <bundle-id>`, and `open -a Simulator` |
 | `APP_SNAPSHOT` mode | macOS: a `snapshot:` bridge command (below). Simulator: a snapshot launch argument (below). |
-| `APP_STORE=.work/...` | A data folder override read from the environment, or a bridge command that only reads |
+| `APP_STORE=work/...` | A data folder override read from the environment, or a bridge command that only reads |
 | `swift test` | A test target with no host app (below) |
 | `--selftest` launch flag | A `selftest` bridge command, or a launch argument the app reads |
 | Swift 6, default isolation | Swift 5 mode: migrate (below) or keep it and annotate `@MainActor` |
@@ -47,18 +47,18 @@ once.
 ## Simulators and devices
 
 **Simulators.** Claude creates the project's own, one per platform, and
-records each in `.work/simulators` (CONVENTIONS.md, section 5):
+records each in `work/simulators` (CONVENTIONS.md, section 5):
 
 ```bash
 xcrun simctl list runtimes                          # the installed runtimes
 xcrun simctl list devicetypes | grep -i 'iPhone 1'  # a device type name
 udid=$(xcrun simctl create "bama-<App>-ios" "iPhone 16" com.apple.CoreSimulator.SimRuntime.iOS-26-0)
-echo "ios $udid" >> .work/simulators
+echo "ios $udid" >> work/simulators
 ```
 
 Pick a runtime and device type from the lists, not from memory. Boot with
 `xcrun simctl boot <udid>`, shut down with `xcrun simctl shutdown <udid>`.
-Never `shutdown all`, and never touch a simulator not in `.work/simulators`.
+Never `shutdown all`, and never touch a simulator not in `work/simulators`.
 
 With XcodeBuildMCP in the session, `build_run_sim`, `screenshot`,
 `snapshot_ui`, and the tap tools work. Claude sets the session defaults to
@@ -115,9 +115,9 @@ so no permission is needed:
 
 ```bash
 xcrun simctl ui <udid> appearance dark
-SIMCTL_CHILD_APP_STORE="$PWD/.work/test.store" SIMCTL_CHILD_APP_SEED=1 \
+SIMCTL_CHILD_APP_STORE="$PWD/work/test.store" SIMCTL_CHILD_APP_SEED=1 \
   xcrun simctl launch --terminate-running-process <udid> <bundle-id> -page today
-xcrun simctl io <udid> screenshot .work/shots/ios/today-dark.png
+xcrun simctl io <udid> screenshot work/shots/ios/today-dark.png
 ```
 
 `SIMCTL_CHILD_<NAME>` sets `<NAME>` in the app's environment. Arguments
@@ -130,7 +130,7 @@ it appears) rather than a fixed sleep.
 After a refactor, diff new snapshots against a baseline:
 
 ```bash
-magick compare -metric AE -fuzz 8% before/settings.png after/settings.png .work/compare/settings-diff.png
+magick compare -metric AE -fuzz 8% before/settings.png after/settings.png work/compare/settings-diff.png
 ```
 
 Zero changed pixels proves the screen did not change. Small diffs on live

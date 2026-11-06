@@ -10,7 +10,7 @@ allowed-tools: Bash(*/new-app.sh *) Bash(git *) Bash(swift *) Bash(./build.sh *)
 Records: `${user_config.records}` (vault `${user_config.muninn_vault}`). See [CONVENTIONS.md](../../../CONVENTIONS.md), section 8.
 
 Claude follows [CONVENTIONS.md](../../../CONVENTIONS.md): voice, platform ids,
-the `.work/` folder, the footprint, simulators, and git. Both templates build
+the `work/` folder, the footprint, simulators, and git. Both templates build
 and run as they are. The first build proves the toolchain works before any
 feature code.
 
@@ -50,7 +50,7 @@ multi-platform (template-multi/)
   tools/lib.sh             shared script code: stages, timeouts, project simulators
 
 both
-  build.sh  CLAUDE.md  Icon/AppIcon.icon  .gitignore (.work/ included)
+  build.sh  CLAUDE.md  Icon/AppIcon.icon  .gitignore (work/ included)
   tools/snap.sh  tools/selftest.sh  tools/footprint.sh  tools/grid-lint.sh
   tools/icon_review.sh  tools/icon_sheet.swift
 ```
@@ -67,22 +67,22 @@ Same flags in both templates. A Mac-only project takes only `macos`.
 
 ```bash
 ./build.sh [--platform <id>] [--debug] [--open]   # all platforms when no --platform
-tools/snap.sh [--platform <id>] [--open]          # .work/shots/<platform>/<page>-<light|dark>.png
+tools/snap.sh [--platform <id>] [--open]          # work/shots/<platform>/<page>-<light|dark>.png
 tools/selftest.sh [--platform <id>]               # PASS per check, exit 0
 tools/footprint.sh [list|clean]                   # everything outside the project
 tools/grid-lint.sh                                # spacing on the 4 pt grid
-tools/icon_review.sh                              # .work/icon/review*.png
+tools/icon_review.sh                              # work/icon/review*.png
 ```
 
 - `macos` installs `~/Applications/<App>.app`. Other platforms build with
   `xcodebuild -derivedDataPath ~/Library/Developer/<App>/DerivedData` and
   install into the project simulator `bama-<App>-<platform>`, which the
-  scripts create on first use and list in `.work/simulators`.
+  scripts create on first use and list in `work/simulators`.
 - The scripts shut a simulator down when they finish, unless `--open` or it
   was already running. `--open` leaves the app open for the user.
 - Multi-platform scripts print `[n/N] pct% stage` per step, a heartbeat each
   minute, and a `TIMEOUT` line when a step hangs. Build logs go to
-  `.work/logs/`.
+  `work/logs/`.
 
 ## Steps
 
@@ -175,7 +175,7 @@ the Skill tool with `bama:agent-cli`.
 - `cannot find 'X' in scope` after adding a file (Mac-only): SwiftPM cached
   the file list. Run `swift package clean --scratch-path ~/Library/Developer/<App>/build`.
 - Multi-platform: `build.sh` regenerates the project each time, so new files
-  join every target. Read `.work/logs/build-<platform>.log`. An API missing on
+  join every target. Read `work/logs/build-<platform>.log`. An API missing on
   one platform needs an `#if os(...)` block.
 - `database is locked`: another build of the same project is still running.
   Stop it before building again.

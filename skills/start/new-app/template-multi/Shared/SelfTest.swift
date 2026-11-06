@@ -8,8 +8,8 @@ import AppKit
 /// Self-test for agents: runs the app's real functions on a test store,
 /// prints PASS or FAIL per check, then SELFTEST PASS or SELFTEST FAIL, and
 /// quits with exit code 0 or 1. tools/selftest.sh runs it on every platform:
-///   Mac:        APP_STORE=.work/self.store ~/Applications/__APP_NAME__.app/Contents/MacOS/__APP_NAME__ --selftest
-///   simulator:  SIMCTL_CHILD_APP_STORE=<project>/.work/self.store xcrun simctl launch <udid> <bundle-id> --selftest
+///   Mac:        APP_STORE=work/self.store ~/Applications/__APP_NAME__.app/Contents/MacOS/__APP_NAME__ --selftest
+///   simulator:  SIMCTL_CHILD_APP_STORE=<project>/work/self.store xcrun simctl launch <udid> <bundle-id> --selftest
 /// Add a check for every story with logic.
 enum SelfTest {
     static var requested: Bool { CommandLine.arguments.contains("--selftest") }

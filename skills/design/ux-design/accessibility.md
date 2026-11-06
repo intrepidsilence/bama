@@ -45,7 +45,7 @@ Run the app on the project's simulator for the platform
    at each new view:
 
    ```bash
-   udid=$(awk '$1=="ios"{print $2}' .work/simulators)
+   udid=$(awk '$1=="ios"{print $2}' work/simulators)
    xcrun simctl ui "$udid" content_size accessibility-extra-extra-extra-large
    xcrun simctl ui "$udid" increase_contrast enabled
    xcrun simctl ui "$udid" appearance dark

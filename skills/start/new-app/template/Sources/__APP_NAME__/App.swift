@@ -9,7 +9,7 @@ import SwiftUI
 //   APP_SEED=1 __APP_NAME__           fill an empty test store with sample items (tools/snap.sh)
 //   __APP_NAME__ --selftest           run the self-test on a test store and quit with 0 or 1 (tools/selftest.sh)
 // Snapshots, seed data, and the self-test need APP_STORE set to a test file
-// (the scripts use .work/ in the project), never the real data folder.
+// (the scripts use work/ in the project), never the real data folder.
 //   APP_ACCENT=<id> __APP_NAME__      run with another accent from Theme.all (UI/Theme.swift)
 //   APP_GRID=1 __APP_NAME__           draw the 8 pt grid and the layout probes over the window
 
@@ -84,7 +84,7 @@ enum Store {
     }
 
     /// Why a test run refuses to start.
-    static let testStoreRule = "APP_STORE must be set to a test file (like .work/test.store), outside ~/Library/Application Support/__APP_NAME__/"
+    static let testStoreRule = "APP_STORE must be set to a test file (like work/test.store), outside ~/Library/Application Support/__APP_NAME__/"
 
     static var url: URL {
         if let path = ProcessInfo.processInfo.environment["APP_STORE"], !path.isEmpty {

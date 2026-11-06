@@ -153,13 +153,13 @@ Check: every PNG the catalog names exists at the pixel size in the table.
 Xcode compiles the catalog with the target. To check it alone:
 
 ```bash
-mkdir -p .work/icon/tvos
-xcrun actool "Icon/tvOS.xcassets" --compile .work/icon/tvos \
+mkdir -p work/icon/tvos
+xcrun actool "Icon/tvOS.xcassets" --compile work/icon/tvos \
   --platform appletvos --target-device tv --minimum-deployment-target 26.0 \
   --app-icon "App Icon & Top Shelf Image" \
-  --output-partial-info-plist .work/icon/tvos/partial.plist \
+  --output-partial-info-plist work/icon/tvos/partial.plist \
   --output-format human-readable-text --warnings --notices 2>&1 | grep -E 'error:|warning:'
-plutil -p .work/icon/tvos/partial.plist
+plutil -p work/icon/tvos/partial.plist
 ```
 
 `actool` exits 0 even when it prints errors, so read the output. Seen
@@ -182,7 +182,7 @@ keys.
 1. A flat preview of the layers, for the glyph and the colors:
 
    ```bash
-   swift "$r" preview .work/icon/tvos-preview.png \
+   swift "$r" preview work/icon/tvos-preview.png \
      "$stack/Back.imagestacklayer/Content.imageset/back@2x.png" \
      "$stack/Middle.imagestacklayer/Content.imageset/middle@2x.png" \
      "$stack/Front.imagestacklayer/Content.imageset/front@2x.png"

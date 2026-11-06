@@ -152,7 +152,7 @@ each target:
 ```bash
 ./build.sh --platform <id>                         # snap.sh installs the last build
 APP_KIT_GALLERY=1 tools/snap.sh --platform <id>   # once per target
-# PNGs in .work/shots/<id>/
+# PNGs in work/shots/<id>/
 ```
 
 Review a new part here before it goes into a screen.

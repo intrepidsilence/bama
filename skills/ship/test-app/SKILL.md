@@ -8,7 +8,7 @@ description: Test an Apple platform app at every level, from Swift Testing unit 
 Records: `${user_config.records}` (vault `${user_config.muninn_vault}`). See [CONVENTIONS.md](../../../CONVENTIONS.md), section 8.
 
 Claude follows [CONVENTIONS.md](../../../CONVENTIONS.md): platform ids
-(section 2), test databases in `.work/` (3), project simulators (5), and
+(section 2), test databases in `work/` (3), project simulators (5), and
 what may stay running (6).
 
 Levels, cheapest first. Each new story gets the cheapest level that can
@@ -90,20 +90,20 @@ tools/selftest.sh --platform ios     # in the bama-<App>-ios simulator
 # PASS undo
 ```
 
-The script deletes `.work/self.store` (with `-wal` and `-shm`) and points
+The script deletes `work/self.store` (with `-wal` and `-shm`) and points
 `APP_STORE` at it. In a simulator it passes the environment with the
 `SIMCTL_CHILD_` prefix, which `xcrun simctl launch` hands to the app, and
 sends the app's output to a log:
 
 ```bash
-SIMCTL_CHILD_APP_STORE="$root/.work/self.store" \
+SIMCTL_CHILD_APP_STORE="$root/work/self.store" \
   xcrun simctl launch --terminate-running-process \
-  --stdout=.work/logs/selftest-ios.log --stderr=.work/logs/selftest-ios.log \
+  --stdout=work/logs/selftest-ios.log --stderr=work/logs/selftest-ios.log \
   <udid> <bundle-id> --selftest
 ```
 
 The script waits up to 120 seconds for a `SELFTEST PASS` or `SELFTEST FAIL`
-line in `.work/logs/selftest-<platform>.log`, prints PASS or FAIL per
+line in `work/logs/selftest-<platform>.log`, prints PASS or FAIL per
 platform, and exits 0 only when every platform passed. On a FAIL, Claude
 reads that log. The watchOS app's bundle id is `<bundle-id>.watchkitapp`. The self-test never runs against the user's data or a
 device's real data.
@@ -184,8 +184,8 @@ Each rule has a Mac form and a simulator form:
 | --- | --- | --- |
 | Quit cleanly with an exit code | Quit through `NSApp.terminate`, with the exit code set in `applicationWillTerminate`. Close open sheets first, or terminate is refused and the run waits forever. | Print a last `SELFTEST PASS` or `SELFTEST FAIL` line, then `exit(code)`. iOS apps have no terminate call. The script waits for that line, not for the process. |
 | Clear state from a crashed run | Delete `~/Library/Saved Application State/<bundle id>.savedState`. After a crash, the next launch shows a "reopen windows?" alert that blocks every later run with no output. Do not use `-ApplePersistenceIgnoreState`: SwiftUI then opens no window at all. | `xcrun simctl terminate <udid> <bundle-id>` before launch (or `launch --terminate-running-process`). Scene restoration can reopen the last page; the self-test sets its own starting page. |
-| Start from an empty test store | Delete the test store and its `-wal` and `-shm` files before a seeded run. Seed data only fills an empty store. | The same, with `SIMCTL_CHILD_APP_STORE` pointing into the project's `.work/`. The simulator app can read and write the Mac path. |
-| Keep the lines before a crash | Print line-buffered (`setvbuf(stdout, nil, _IOLBF, 0)`). | The same. `--stdout` and `--stderr` send the lines to `.work/logs/`, where they survive a crash. |
+| Start from an empty test store | Delete the test store and its `-wal` and `-shm` files before a seeded run. Seed data only fills an empty store. | The same, with `SIMCTL_CHILD_APP_STORE` pointing into the project's `work/`. The simulator app can read and write the Mac path. |
+| Keep the lines before a crash | Print line-buffered (`setvbuf(stdout, nil, _IOLBF, 0)`). | The same. `--stdout` and `--stderr` send the lines to `work/logs/`, where they survive a crash. |
 | Never wait forever | Every run has a time limit. A script Claude writes stops the app after 2 minutes and says it timed out. | `tools/selftest.sh` waits at most 120 seconds for the `SELFTEST` line and counts a missing line as FAIL. A simulator stuck on boot for 2 minutes is shut down (`xcrun simctl shutdown <udid>`, project simulator only) and the run starts again. |
 | No permission prompts | Grant ahead in the test copy, or skip the check with a named reason. | `xcrun simctl privacy <udid> grant <service> <bundle-id>` before launch, so an alert does not block the run. |
 
@@ -200,7 +200,7 @@ and writes its state to a file. Code shape:
 swift scripts/<app>ctl.swift status            # writes and prints status.json
 swift scripts/<app>ctl.swift windowLeft        # runs an action by name
 swift scripts/<app>ctl.swift snapshot:launcher # draws a window to a PNG
-swift scripts/<app>ctl.swift captureProbe:.work/tmp/a.png   # runs, logs timing, cancels
+swift scripts/<app>ctl.swift captureProbe:work/tmp/a.png   # runs, logs timing, cancels
 ```
 
 Commands worth adding:
@@ -226,7 +226,7 @@ read the screen) Claude uses one of three, cheapest first:
 1. **XcodeBuildMCP**, when the session has it, on the project simulator:
    `snapshot_ui` reads the screen as elements, `tap`, `swipe`, `button`
    (tvOS remote presses), and `type_text` act on it. Point it at the UDID
-   in `.work/simulators`. Good for one story's acceptance lines.
+   in `work/simulators`. Good for one story's acceptance lines.
 2. **An HTTP debug server** inside the debug build, for repeatable checks
    and for physical devices, where XcodeBuildMCP UI tools do not reach. The
    app listens on a local port and answers `GET /status`, `POST

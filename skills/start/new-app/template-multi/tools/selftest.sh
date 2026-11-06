@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Runs the in-app self-test against a fresh store in .work/. Exit code 0 when
+# Runs the in-app self-test against a fresh store in work/. Exit code 0 when
 # every check passed on every platform. Run ./build.sh first.
 # Usage: tools/selftest.sh                    every platform in tools/platforms
 #        tools/selftest.sh --platform tvos    one platform

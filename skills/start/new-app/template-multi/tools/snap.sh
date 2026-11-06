@@ -5,7 +5,7 @@
 #        tools/snap.sh --open             leave the app open afterwards (the Mac app,
 #                                         or the simulator with the app launched)
 #        APP_SNAPSHOT_PAGES=all,detail tools/snap.sh   limit the pages
-# Writes .work/shots/<platform>/<page>-<light|dark>.png. Run ./build.sh first.
+# Writes work/shots/<platform>/<page>-<light|dark>.png. Run ./build.sh first.
 #   macos     the app captures its own window, plus Settings
 #   others    the project simulator bama-__APP_NAME__-<platform>: boot, install, then per
 #             page: launch on that page, screenshot, quit. The simulator shuts down

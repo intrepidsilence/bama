@@ -2,15 +2,15 @@
 # Renders Icon/AppIcon.icon the way macOS shows it, with Icon Composer's
 # ictool, into one contact sheet:
 #   Default, Dark, TintedDark, ClearLight at 256 pt, then Default at 32 and 16 pt.
-# Usage: tools/icon_review.sh [out.png]     (default .work/icon/review.png)
+# Usage: tools/icon_review.sh [out.png]     (default work/icon/review.png)
 set -euo pipefail
 here=${0:A:h}
 repo=${here:h}
-out=${1:-$repo/.work/icon/review.png}
-mkdir -p "${out:h}" "$repo/.work/tmp"
+out=${1:-$repo/work/icon/review.png}
+mkdir -p "${out:h}" "$repo/work/tmp"
 ictool="$(xcode-select -p)/../Applications/Icon Composer.app/Contents/Executables/ictool"
 [[ -x "$ictool" ]] || { echo "ictool not found. Install Xcode 26 or later."; exit 1; }
-work=$(mktemp -d -p "$repo/.work/tmp")
+work=$(mktemp -d -p "$repo/work/tmp")
 trap 'rm -rf "$work"' EXIT
 
 render() { # rendition size file
